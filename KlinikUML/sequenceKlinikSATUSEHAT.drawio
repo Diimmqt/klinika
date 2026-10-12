@@ -1,0 +1,136 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Halaman-1" id="xR0FzoQRrREUXs_N-kuX">
+    <mxGraphModel dx="1012" dy="547" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="L_SV" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=50;fontStyle=1;fontSize=12;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Aplikasi Klinik&lt;br&gt;(Backend)" vertex="1">
+          <mxGeometry height="733" width="130" x="80" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="L_DB" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=50;fontStyle=1;fontSize=12;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Database&lt;br&gt;(termasuk antrean sinkronisasi)" vertex="1">
+          <mxGeometry height="733" width="130" x="330" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="L_IS" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=50;fontStyle=1;fontSize=12;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Integration&lt;br&gt;Service" vertex="1">
+          <mxGeometry height="733" width="130" x="580" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="L_ST" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=50;fontStyle=1;fontSize=12;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="SATUSEHAT&lt;br&gt;Kemenkes" vertex="1">
+          <mxGeometry height="733" width="130" x="830" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="d11" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="20" y="501" as="sourcePoint" />
+            <mxPoint x="1020" y="501" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="t12" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=11;spacing=2;fontStyle=1;" value="[SATUSEHAT tidak dapat diakses / error]" vertex="1">
+          <mxGeometry height="22" width="420" x="26" y="503" as="geometry" />
+        </mxCell>
+        <mxCell id="f19" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;recursiveResize=0;container=0;collapsible=0;width=40;height=22;fillColor=none;fontStyle=1;fontSize=11;" value="alt" vertex="1">
+          <mxGeometry height="378" width="1000" x="20" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="t20" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=11;spacing=2;fontStyle=1;" value="[SATUSEHAT merespons sukses]" vertex="1">
+          <mxGeometry height="22" width="420" x="66" y="347" as="geometry" />
+        </mxCell>
+        <mxCell id="m1" edge="1" parent="1" style="html=1;endArrow=block;endFill=1;rounded=0;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="180" y="97" />
+              <mxPoint x="180" y="123" />
+            </Array>
+            <mxPoint x="145" y="97" as="sourcePoint" />
+            <mxPoint x="145" y="123" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="t2" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=11;spacing=2;" value="1. Simpan data klinik (alur utama tetap jalan)" vertex="1">
+          <mxGeometry height="34" width="190" x="185" y="93" as="geometry" />
+        </mxCell>
+        <mxCell id="m3" edge="1" parent="1" style="html=1;verticalAlign=bottom;fontSize=11;endArrow=block;endFill=1;" value="2. INSERT job sinkronisasi (Pending)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="145" y="162" as="sourcePoint" />
+            <mxPoint x="395" y="162" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m4" edge="1" parent="1" style="html=1;verticalAlign=bottom;fontSize=11;endArrow=open;endFill=0;dashed=1;" value="3. OK">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="395" y="202" as="sourcePoint" />
+            <mxPoint x="145" y="202" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m5" edge="1" parent="1" style="html=1;verticalAlign=bottom;fontSize=11;endArrow=block;endFill=1;" value="4. Ambil job sinkronisasi Pending">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="645" y="242" as="sourcePoint" />
+            <mxPoint x="395" y="242" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m6" edge="1" parent="1" style="html=1;verticalAlign=bottom;fontSize=11;endArrow=open;endFill=0;dashed=1;" value="5. Daftar job + data">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="395" y="282" as="sourcePoint" />
+            <mxPoint x="645" y="282" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m7" edge="1" parent="1" style="html=1;verticalAlign=bottom;fontSize=11;endArrow=block;endFill=1;" value="6. Autentikasi &amp; kirim data (FHIR)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="645" y="322" as="sourcePoint" />
+            <mxPoint x="895" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m8" edge="1" parent="1" style="html=1;verticalAlign=bottom;fontSize=11;endArrow=open;endFill=0;dashed=1;" value="7. Response sukses + ID resource">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="895" y="400" as="sourcePoint" />
+            <mxPoint x="645" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m9" edge="1" parent="1" style="html=1;verticalAlign=bottom;fontSize=11;endArrow=block;endFill=1;" value="8. UPDATE job = Terkirim, simpan ID">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="645" y="440" as="sourcePoint" />
+            <mxPoint x="395" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m10" edge="1" parent="1" style="html=1;verticalAlign=bottom;fontSize=11;endArrow=open;endFill=0;dashed=1;" value="9. OK">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="395" y="480" as="sourcePoint" />
+            <mxPoint x="645" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m13" edge="1" parent="1" style="html=1;endArrow=block;endFill=1;rounded=0;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="680" y="543" />
+              <mxPoint x="680" y="569" />
+            </Array>
+            <mxPoint x="645" y="543" as="sourcePoint" />
+            <mxPoint x="645" y="569" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="t14" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=11;spacing=2;" value="10. Timeout / error diterima" vertex="1">
+          <mxGeometry height="34" width="190" x="685" y="539" as="geometry" />
+        </mxCell>
+        <mxCell id="m15" edge="1" parent="1" style="html=1;verticalAlign=bottom;fontSize=11;endArrow=block;endFill=1;" value="11. UPDATE job = Gagal (retry + 1)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="645" y="608" as="sourcePoint" />
+            <mxPoint x="395" y="608" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m16" edge="1" parent="1" style="html=1;verticalAlign=bottom;fontSize=11;endArrow=open;endFill=0;dashed=1;" value="12. OK">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="395" y="648" as="sourcePoint" />
+            <mxPoint x="645" y="648" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m17" edge="1" parent="1" style="html=1;endArrow=block;endFill=1;rounded=0;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="680" y="675" />
+              <mxPoint x="680" y="701" />
+            </Array>
+            <mxPoint x="645" y="675" as="sourcePoint" />
+            <mxPoint x="645" y="701" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="t18" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=11;spacing=2;" value="13. Job tetap di antrean, dicoba ulang" vertex="1">
+          <mxGeometry height="34" width="190" x="685" y="671" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
