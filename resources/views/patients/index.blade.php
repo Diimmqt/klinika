@@ -34,7 +34,7 @@
         </div>
 
         <div class="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
-            <span class="text-xs font-medium text-slate-500">Pasien Baru Bulan Ini</span>
+            <span class="text-xs font-medium text-slate-500">Pasien Bulan Ini</span>
             <div class="mt-2 flex items-baseline justify-between">
                 <span class="text-2xl font-bold text-slate-900">{{ number_format($stats['this_month']) }}</span>
                 <span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">{{ now()->translatedFormat('F') }}</span>
