@@ -55,28 +55,23 @@
                 <span>Data Pasien</span>
             </a>
 
-            <!-- Menu lain (informasional) -->
-            <div class="pt-4 px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                Modul Lain
-            </div>
-            <div class="flex items-center justify-between px-3 py-2 rounded-lg text-slate-400 text-sm cursor-not-allowed">
-                <span class="flex items-center gap-3">
-                    <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                    </svg>
-                    <span>Kunjungan</span>
-                </span>
-                <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded">Rekan Tim</span>
-            </div>
-            <div class="flex items-center justify-between px-3 py-2 rounded-lg text-slate-400 text-sm cursor-not-allowed">
-                <span class="flex items-center gap-3">
-                    <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <span>Antrean</span>
-                </span>
-                <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded">Rekan Tim</span>
-            </div>
+            <!-- Kunjungan -->
+            <a href="{{ route('visits.index') }}" 
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors {{ request()->routeIs('visits.*') ? 'bg-teal-600 text-white shadow-sm shadow-teal-200' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                <svg class="w-5 h-5 {{ request()->routeIs('visits.*') ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <span>Kunjungan</span>
+            </a>
+
+            <!-- Antrean -->
+            <a href="{{ route('queues.index') }}" 
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors {{ request()->routeIs('queues.*') ? 'bg-teal-600 text-white shadow-sm shadow-teal-200' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                <svg class="w-5 h-5 {{ request()->routeIs('queues.*') ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>Antrean Poli</span>
+            </a>
         </nav>
 
         <!-- User Role Profile Footer -->

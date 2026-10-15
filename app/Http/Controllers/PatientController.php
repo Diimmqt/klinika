@@ -111,6 +111,8 @@ class PatientController extends Controller
      */
     public function show(Patient $patient): View
     {
+        $patient->load(['visits.poli', 'visits.queue', 'creator']);
+
         return view('patients.show', compact('patient'));
     }
 
