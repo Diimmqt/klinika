@@ -34,7 +34,7 @@
         </div>
 
         <div class="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
-            <span class="text-xs font-medium text-slate-500">Pasien Baru Bulan Ini</span>
+            <span class="text-xs font-medium text-slate-500">Pasien Bulan Ini</span>
             <div class="mt-2 flex items-baseline justify-between">
                 <span class="text-2xl font-bold text-slate-900">{{ number_format($stats['this_month']) }}</span>
                 <span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">{{ now()->translatedFormat('F') }}</span>
@@ -106,7 +106,7 @@
                     <a href="{{ route('patients.index') }}" 
                        class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm rounded-xl transition-colors text-center" 
                        title="Reset Filter">
-                        ✕
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                     </a>
                 @endif
             </div>

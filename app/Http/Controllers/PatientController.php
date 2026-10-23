@@ -18,6 +18,8 @@ class PatientController extends Controller
      */
     public function index(Request $request): View
     {
+        abort_unless(auth()->user()?->can('patient.view'), 403, 'Akses ditolak: Anda tidak memiliki izin melihat data pasien.');
+
         $search = trim((string) $request->input('search'));
         $gender = $request->input('gender');
         $sort = $request->input('sort', 'latest');
@@ -65,6 +67,7 @@ class PatientController extends Controller
      */
     public function create(): View
     {
+        abort_unless(auth()->user()?->can('patient.create'), 403, 'Akses ditolak: Anda tidak memiliki izin mendaftarkan pasien.');
         return view('patients.create');
     }
 
@@ -73,6 +76,7 @@ class PatientController extends Controller
      */
     public function store(StorePatientRequest $request): RedirectResponse
     {
+        abort_unless(auth()->user()?->can('patient.create'), 403, 'Akses ditolak: Anda tidak memiliki izin mendaftarkan pasien.');
         try {
             $patient = DB::transaction(function () use ($request) {
                 $medicalRecordNumber = Patient::generateMedicalRecordNumber();
@@ -111,6 +115,7 @@ class PatientController extends Controller
      */
     public function show(Patient $patient): View
     {
+        abort_unless(auth()->user()?->can('patient.view'), 403, 'Akses ditolak: Anda tidak memiliki izin melihat data pasien.');
         return view('patients.show', compact('patient'));
     }
 
@@ -119,6 +124,7 @@ class PatientController extends Controller
      */
     public function edit(Patient $patient): View
     {
+        abort_unless(auth()->user()?->can('patient.update'), 403, 'Akses ditolak: Anda tidak memiliki izin mengubah data pasien.');
         return view('patients.edit', compact('patient'));
     }
 
@@ -127,6 +133,7 @@ class PatientController extends Controller
      */
     public function update(UpdatePatientRequest $request, Patient $patient): RedirectResponse
     {
+        abort_unless(auth()->user()?->can('patient.update'), 403, 'Akses ditolak: Anda tidak memiliki izin mengubah data pasien.');
         try {
             $patient->update($request->validated());
 
@@ -145,6 +152,7 @@ class PatientController extends Controller
      */
     public function destroy(Patient $patient): RedirectResponse
     {
+        abort_unless(auth()->user()?->can('patient.delete'), 403, 'Akses ditolak: Anda tidak memiliki izin menghapus data pasien.');
         try {
             $name = $patient->name;
             $mrn = $patient->medical_record_number;

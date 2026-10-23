@@ -17,13 +17,10 @@ class PatientTest extends TestCase
     {
         parent::setUp();
 
-        $this->user = User::firstOrCreate(
-            ['email' => 'admin@klinika.id'],
-            [
-                'name' => 'Petugas Pendaftaran',
-                'password' => bcrypt('password'),
-            ]
-        );
+        $this->seed(\Database\Seeders\RbacSeeder::class);
+
+        $this->user = User::where('email', 'superadmin@klinika.id')->firstOrFail();
+        $this->actingAs($this->user);
     }
 
     public function test_can_render_patient_index_page(): void
