@@ -48,6 +48,61 @@ class AdminRbacTest extends TestCase
         $response->assertSessionHas('created_user');
     }
 
+    public function test_can_render_edit_user_page_with_password_reset_option(): void
+    {
+        $user = User::factory()->create(['name' => 'Sinta Rahma', 'email' => 'sinta@klinika.test']);
+        $user->assignRole('pendaftaran');
+
+        $this->get(route('admin.users.edit', $user))
+            ->assertOk()
+            ->assertSee('Edit akun pengguna')
+            ->assertSee('Sinta Rahma')
+            ->assertSee('Reset password (opsional)')
+            ->assertSee('Kata sandi baru')
+            ->assertSee('Konfirmasi kata sandi baru')
+            ->assertSee('Batas perubahan akses')
+            ->assertSee('Validasi sebelum simpan');
+    }
+
+    public function test_can_update_user_and_reset_password(): void
+    {
+        $user = User::factory()->create(['name' => 'Sinta Rahma', 'email' => 'sinta@klinika.test']);
+        $user->assignRole('pendaftaran');
+
+        $res = $this->put(route('admin.users.update', $user), [
+            'name' => 'Sinta Rahma Updated',
+            'email' => 'sinta.updated@klinika.test',
+            'roles' => ['pendaftaran'],
+            'is_active' => '1',
+            'audit_note' => 'Perbarui informasi akun dan ganti password.',
+            'password' => 'NewSecretPassword123!',
+            'password_confirmation' => 'NewSecretPassword123!',
+        ]);
+
+        $res->assertRedirect(route('admin.users.show', $user));
+        $user->refresh();
+
+        $this->assertEquals('Sinta Rahma Updated', $user->name);
+        $this->assertEquals('sinta.updated@klinika.test', $user->email);
+        $this->assertTrue(\Illuminate\Support\Facades\Hash::check('NewSecretPassword123!', $user->password));
+    }
+
+    public function test_update_user_fails_if_password_confirmation_mismatches(): void
+    {
+        $user = User::factory()->create(['name' => 'Sinta Rahma', 'email' => 'sinta@klinika.test']);
+        $user->assignRole('pendaftaran');
+
+        $res = $this->put(route('admin.users.update', $user), [
+            'name' => 'Sinta Rahma',
+            'email' => 'sinta@klinika.test',
+            'roles' => ['pendaftaran'],
+            'password' => 'NewSecretPassword123!',
+            'password_confirmation' => 'DifferentPassword123!',
+        ]);
+
+        $res->assertSessionHasErrors(['password']);
+    }
+
     public function test_user_validation_fails_without_required_fields(): void
     {
         $this->post(route('admin.users.store'), [])

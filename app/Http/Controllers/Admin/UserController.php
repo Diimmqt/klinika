@@ -48,15 +48,15 @@ class UserController extends Controller
             default => $query->latest(),
         };
 
-        $users = $query->paginate(10)->withQueryString();
+        $users = $query->paginate(8)->withQueryString();
         $roles = Role::orderBy('name')->get();
 
         $stats = [
-            'total'   => User::count(),
-            'active'  => User::where('is_active', true)->count(),
-            'inactive'=> User::where('is_active', false)->count(),
-            'roles'   => Role::count(),
-            'pending' => User::where('is_active', false)->count(),
+            'total'       => User::count(),
+            'active'      => User::where('is_active', true)->count(),
+            'inactive'    => User::where('is_active', false)->count(),
+            'super_admin' => User::role('super_admin')->count(),
+            'roles'       => Role::count(),
         ];
 
         return view('admin.users.index', compact('users', 'roles', 'stats', 'search', 'role', 'status', 'sort'));

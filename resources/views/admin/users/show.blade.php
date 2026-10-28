@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
 @section('title', 'Detail Akun Pengguna')
-@section('page-title', 'Klinik & pengguna')
+@section('page-title', 'Daftar akun')
 
 @section('breadcrumb')
     <a href="{{ route('admin.dashboard') }}" class="hover:opacity-80" style="color:var(--klinika-primary)">Beranda</a>
     <span>/</span>
-    <a href="{{ route('admin.users.index') }}" class="hover:opacity-80" style="color:var(--klinika-primary)">Klinik & pengguna</a>
+    <a href="{{ route('admin.users.index') }}" class="hover:opacity-80" style="color:var(--klinika-primary)">Daftar akun</a>
     <span>/</span>
     <a href="{{ route('admin.users.index') }}" class="hover:opacity-80" style="color:var(--klinika-primary)">Akun pengguna</a>
     <span>/</span>

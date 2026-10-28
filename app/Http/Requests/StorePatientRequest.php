@@ -25,7 +25,6 @@ class StorePatientRequest extends FormRequest
             'nik' => [
                 'nullable',
                 'digits:16',
-                'unique:patients,nik',
             ],
             'name' => [
                 'required',
@@ -49,7 +48,9 @@ class StorePatientRequest extends FormRequest
             'phone' => [
                 'nullable',
                 'string',
-                'max:20',
+                'min:10',
+                'max:15',
+                'regex:/^[0-9]+$/',
             ],
             'address' => [
                 'nullable',
@@ -64,6 +65,10 @@ class StorePatientRequest extends FormRequest
                 'string',
                 'max:255',
             ],
+            'occupation' => ['nullable', 'string', 'max:255'],
+            'emergency_contact_name' => ['nullable', 'string', 'max:255'],
+            'emergency_contact_relationship' => ['nullable', 'string', 'max:100'],
+            'emergency_contact_phone' => ['nullable', 'string', 'max:20'],
         ];
     }
 
@@ -80,8 +85,7 @@ class StorePatientRequest extends FormRequest
             'gender' => 'Jenis kelamin',
             'birth_place' => 'Tempat lahir',
             'birth_date' => 'Tanggal lahir',
-            'phone' => 'Nomor telepon',
-            'address' => 'Alamat domisili',
+            'phone' => 'Nomor telepon',            'address' => 'Alamat domisili',
             'blood_type' => 'Golongan darah',
             'satusehat_ihs_number' => 'Nomor IHS SATUSEHAT',
         ];
@@ -102,6 +106,9 @@ class StorePatientRequest extends FormRequest
             'birth_place.required' => 'Tempat lahir wajib diisi.',
             'birth_date.required' => 'Tanggal lahir wajib diisi.',
             'birth_date.before_or_equal' => 'Tanggal lahir tidak boleh melebihi hari ini.',
+            'phone.min'   => 'Nomor telepon harus 10–15 digit.',
+            'phone.max'   => 'Nomor telepon harus 10–15 digit.',
+            'phone.regex' => 'Nomor telepon harus berupa angka.',
         ];
     }
 }

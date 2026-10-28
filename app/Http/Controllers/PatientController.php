@@ -10,7 +10,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
-
 class PatientController extends Controller
 {
     /**
@@ -77,6 +76,22 @@ class PatientController extends Controller
     public function store(StorePatientRequest $request): RedirectResponse
     {
         abort_unless(auth()->user()?->can('patient.create'), 403, 'Akses ditolak: Anda tidak memiliki izin mendaftarkan pasien.');
+
+        // Flash duplicate info so the create view can show "Buka RM-XXXXX" button
+        if ($request->filled('nik')) {
+            $existing = Patient::where('nik', $request->nik)->first();
+            if ($existing) {
+                return back()
+                    ->withInput()
+                    ->withErrors(['nik' => "NIK sudah dipakai oleh {$existing->medical_record_number}"])
+                    ->with('duplicate_patient', [
+                        'name' => $existing->name,
+                        'rm'   => $existing->medical_record_number,
+                        'url'  => route('patients.show', $existing),
+                    ]);
+            }
+        }
+
         try {
             $patient = DB::transaction(function () use ($request) {
                 $medicalRecordNumber = Patient::generateMedicalRecordNumber();

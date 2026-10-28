@@ -1,234 +1,183 @@
 @extends('layouts.app')
 
-@section('title', 'Tambah Pasien Baru')
-@section('page-title', 'Tambah Pasien')
+@section('title', 'Tambah Pasien')
+
+@section('breadcrumb')
+    <a href="{{ route('patients.index') }}" class="hover:underline klinika-primary-text">Data pasien</a>
+    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    <span>Tambah pasien</span>
+@endsection
 
 @section('content')
-<div class="max-w-4xl mx-auto space-y-6">
 
-    <!-- Header Section -->
-    <div class="flex items-center justify-between">
-        <div>
-            <div class="flex items-center gap-2">
-                <a href="{{ route('patients.index') }}" class="text-xs text-slate-400 hover:text-teal-600 transition-colors flex items-center gap-1">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                    </svg>
-                    <span>Kembali ke Daftar</span>
-                </a>
-            </div>
-            <h2 class="text-2xl font-bold text-slate-900 tracking-tight mt-1">Pendaftaran Pasien Baru</h2>
-            <p class="text-sm text-slate-500">Lengkapi data identitas pasien untuk pembuatan nomor rekam medis.</p>
-        </div>
+{{-- Duplicate NIK banner (shown when validation fails with nik.unique) --}}
+@if ($errors->has('nik') && session('duplicate_patient'))
+@php $dup = session('duplicate_patient'); @endphp
+<div class="rounded-lg border p-4 flex items-start gap-3" style="background:#fff1f2;border-color:#fecdd3">
+    <svg class="w-5 h-5 shrink-0 mt-0.5" style="color:#be123c" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    <div class="flex-1">
+        <p class="text-sm font-semibold" style="color:#9f1239">Pasien dengan NIK ini sudah terdaftar</p>
+        <p class="text-xs mt-0.5" style="color:#be123c">{{ $dup['name'] }} &bull; {{ $dup['rm'] }}</p>
     </div>
-
-    <!-- Informasi Penomoran Otomatis -->
-    <div class="p-4 rounded-2xl bg-teal-50/70 border border-teal-200/60 flex items-start gap-3">
-        <div class="w-8 h-8 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center shrink-0 mt-0.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-        </div>
-        <div>
-            <h4 class="text-xs font-bold text-teal-900">Penomoran Rekam Medis Otomatis</h4>
-            <p class="text-xs text-teal-800/80 mt-0.5">
-                Nomor Rekam Medis (No. RM) akan otomatis di-generate secara atomic dan berurutan dari database (format: <code class="font-mono bg-teal-100/80 px-1 py-0.5 rounded text-teal-900 font-bold">RM-{{ date('Y') }}-XXXXX</code>) saat formulir ini disimpan.
-            </p>
-        </div>
-    </div>
-
-    <!-- Form Pasien Baru -->
-    <form method="POST" action="{{ route('patients.store') }}" class="p-6 md:p-8 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-6">
-        @csrf
-
-        <div class="space-y-4">
-            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2">
-                1. Data Identitas Pasien
-            </h3>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <!-- NIK -->
-                <div>
-                    <label for="nik" class="block text-xs font-semibold text-slate-700 mb-1.5">
-                        NIK (Nomor Induk Kependudukan)
-                    </label>
-                    <input type="text" 
-                           id="nik" 
-                           name="nik" 
-                           value="{{ old('nik') }}" 
-                           placeholder="16 digit angka sesuai KTP" 
-                           maxlength="16"
-                           class="w-full px-3.5 py-2.5 rounded-xl border @error('nik') border-rose-300 bg-rose-50/30 text-rose-900 @else border-slate-200 bg-slate-50/50 text-slate-900 @enderror text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-mono">
-                    @error('nik')
-                        <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p>
-                    @else
-                        <p class="mt-1 text-[11px] text-slate-400">Opsional, jika belum memiliki KTP dapat dikosongkan.</p>
-                    @enderror
-                </div>
-
-                <!-- Nama Pasien -->
-                <div>
-                    <label for="name" class="block text-xs font-semibold text-slate-700 mb-1.5">
-                        Nama Lengkap Pasien <span class="text-rose-500">*</span>
-                    </label>
-                    <input type="text" 
-                           id="name" 
-                           name="name" 
-                           value="{{ old('name') }}" 
-                           placeholder="Masukkan nama lengkap pasien" 
-                           required
-                           class="w-full px-3.5 py-2.5 rounded-xl border @error('name') border-rose-300 bg-rose-50/30 text-rose-900 @else border-slate-200 bg-slate-50/50 text-slate-900 @enderror text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
-                    @error('name')
-                        <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p>
-                    @enderror
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <!-- Jenis Kelamin -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">
-                        Jenis Kelamin <span class="text-rose-500">*</span>
-                    </label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <label class="flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer transition-colors {{ old('gender') === 'L' ? 'border-teal-500 bg-teal-50/50 text-teal-900' : 'border-slate-200 hover:bg-slate-50 text-slate-700' }}">
-                            <input type="radio" name="gender" value="L" {{ old('gender') === 'L' ? 'checked' : '' }} required class="text-teal-600 focus:ring-teal-500">
-                            <span class="text-xs font-medium">Laki-laki</span>
-                        </label>
-                        <label class="flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer transition-colors {{ old('gender') === 'P' ? 'border-teal-500 bg-teal-50/50 text-teal-900' : 'border-slate-200 hover:bg-slate-50 text-slate-700' }}">
-                            <input type="radio" name="gender" value="P" {{ old('gender') === 'P' ? 'checked' : '' }} required class="text-teal-600 focus:ring-teal-500">
-                            <span class="text-xs font-medium">Perempuan</span>
-                        </label>
-                    </div>
-                    @error('gender')
-                        <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Tempat Lahir -->
-                <div>
-                    <label for="birth_place" class="block text-xs font-semibold text-slate-700 mb-1.5">
-                        Tempat Lahir <span class="text-rose-500">*</span>
-                    </label>
-                    <input type="text" 
-                           id="birth_place" 
-                           name="birth_place" 
-                           value="{{ old('birth_place') }}" 
-                           placeholder="Kota kelahiran" 
-                           required
-                           class="w-full px-3.5 py-2.5 rounded-xl border @error('birth_place') border-rose-300 bg-rose-50/30 text-rose-900 @else border-slate-200 bg-slate-50/50 text-slate-900 @enderror text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
-                    @error('birth_place')
-                        <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Tanggal Lahir -->
-                <div>
-                    <label for="birth_date" class="block text-xs font-semibold text-slate-700 mb-1.5">
-                        Tanggal Lahir <span class="text-rose-500">*</span>
-                    </label>
-                    <input type="date" 
-                           id="birth_date" 
-                           name="birth_date" 
-                           value="{{ old('birth_date') }}" 
-                           max="{{ date('Y-m-d') }}"
-                           required
-                           class="w-full px-3.5 py-2.5 rounded-xl border @error('birth_date') border-rose-300 bg-rose-50/30 text-rose-900 @else border-slate-200 bg-slate-50/50 text-slate-900 @enderror text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
-                    @error('birth_date')
-                        <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p>
-                    @enderror
-                </div>
-            </div>
-        </div>
-
-        <div class="space-y-4 pt-4 border-t border-slate-100">
-            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2">
-                2. Kontak & Informasi Klinis
-            </h3>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <!-- Nomor Telepon -->
-                <div>
-                    <label for="phone" class="block text-xs font-semibold text-slate-700 mb-1.5">
-                        Nomor Telepon / WhatsApp
-                    </label>
-                    <input type="text" 
-                           id="phone" 
-                           name="phone" 
-                           value="{{ old('phone') }}" 
-                           placeholder="Contoh: 08123456789" 
-                           class="w-full px-3.5 py-2.5 rounded-xl border @error('phone') border-rose-300 bg-rose-50/30 text-rose-900 @else border-slate-200 bg-slate-50/50 text-slate-900 @enderror text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
-                    @error('phone')
-                        <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Golongan Darah -->
-                <div>
-                    <label for="blood_type" class="block text-xs font-semibold text-slate-700 mb-1.5">
-                        Golongan Darah
-                    </label>
-                    <select id="blood_type" 
-                            name="blood_type" 
-                            class="w-full px-3.5 py-2.5 rounded-xl border @error('blood_type') border-rose-300 bg-rose-50/30 text-rose-900 @else border-slate-200 bg-slate-50/50 text-slate-900 @enderror text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
-                        <option value="">-- Pilih Golongan Darah (Opsional) --</option>
-                        <option value="A" {{ old('blood_type') === 'A' ? 'selected' : '' }}>Golongan A</option>
-                        <option value="B" {{ old('blood_type') === 'B' ? 'selected' : '' }}>Golongan B</option>
-                        <option value="AB" {{ old('blood_type') === 'AB' ? 'selected' : '' }}>Golongan AB</option>
-                        <option value="O" {{ old('blood_type') === 'O' ? 'selected' : '' }}>Golongan O</option>
-                        <option value="-" {{ old('blood_type') === '-' ? 'selected' : '' }}>Tidak Tahu / Belum Cek (-)</option>
-                    </select>
-                    @error('blood_type')
-                        <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p>
-                    @enderror
-                </div>
-            </div>
-
-            <!-- Alamat Domisili -->
-            <div>
-                <label for="address" class="block text-xs font-semibold text-slate-700 mb-1.5">
-                    Alamat Domisili Lengkap
-                </label>
-                <textarea id="address" 
-                          name="address" 
-                          rows="3" 
-                          placeholder="Jalan, RT/RW, Kelurahan, Kecamatan, Kota..."
-                          class="w-full px-3.5 py-2.5 rounded-xl border @error('address') border-rose-300 bg-rose-50/30 text-rose-900 @else border-slate-200 bg-slate-50/50 text-slate-900 @enderror text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">{{ old('address') }}</textarea>
-                @error('address')
-                    <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- SATUSEHAT IHS Number (Opsional) -->
-            <div>
-                <label for="satusehat_ihs_number" class="block text-xs font-semibold text-slate-700 mb-1.5">
-                    Nomor IHS SATUSEHAT (Opsional)
-                </label>
-                <input type="text" 
-                       id="satusehat_ihs_number" 
-                       name="satusehat_ihs_number" 
-                       value="{{ old('satusehat_ihs_number') }}" 
-                       placeholder="Contoh: P10002819283 (dapat diisi jika pasien telah memiliki IHS Number)" 
-                       class="w-full px-3.5 py-2.5 rounded-xl border @error('satusehat_ihs_number') border-rose-300 bg-rose-50/30 text-rose-900 @else border-slate-200 bg-slate-50/50 text-slate-900 @enderror text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-mono">
-                @error('satusehat_ihs_number')
-                    <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p>
-                @else
-                    <p class="mt-1 text-[11px] text-slate-400">Field persiapan integrasi SATUSEHAT Kemenkes (dapat dilengkapi nanti).</p>
-                @enderror
-            </div>
-        </div>
-
-        <!-- Tombol Aksi -->
-        <div class="pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
-            <a href="{{ route('patients.index') }}" 
-               class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-sm font-medium transition-colors">
-                Batal
-            </a>
-            <button type="submit" 
-                    class="px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-medium text-sm transition-all shadow-sm shadow-teal-200 hover:shadow-md">
-                Simpan & Daftarkan Pasien
-            </button>
-        </div>
-    </form>
+    <a href="{{ $dup['url'] }}"
+       class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white shrink-0"
+       style="background:#be123c">
+        Buka {{ $dup['rm'] }}
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+    </a>
 </div>
+@endif
+
+<form method="POST" action="{{ route('patients.store') }}" id="createPatientForm">
+@csrf
+
+{{-- Identitas pasien --}}
+<div class="klinika-card p-6 space-y-4">
+    <h3 class="font-semibold text-sm border-b klinika-border pb-3" style="color:var(--klinika-text)">Identitas pasien</h3>
+
+    {{-- NIK --}}
+    <div>
+        <label class="block text-xs font-semibold klinika-muted mb-1">NIK <span class="text-red-500">*</span></label>
+        <input type="text" name="nik" id="nikInput" value="{{ old('nik') }}"
+               maxlength="16" inputmode="numeric" pattern="[0-9]{16}"
+               placeholder="16 digit NIK sesuai KTP"
+               class="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 @error('nik') border-red-400 @else klinika-border @enderror">
+        @error('nik')
+            <p class="text-xs mt-1" style="color:#be123c">{{ $message }}</p>
+        @enderror
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {{-- Nama --}}
+        <div>
+            <label class="block text-xs font-semibold klinika-muted mb-1">Nama lengkap <span class="text-red-500">*</span></label>
+            <input type="text" name="name" value="{{ old('name') }}"
+                   placeholder="Nama sesuai KTP"
+                   class="w-full px-3 py-2 rounded-lg border klinika-border text-sm focus:outline-none @error('name') border-red-400 @enderror">
+            @error('name')<p class="text-xs mt-1" style="color:#be123c">{{ $message }}</p>@enderror
+        </div>
+
+        {{-- Jenis kelamin --}}
+        <div>
+            <label class="block text-xs font-semibold klinika-muted mb-1">Jenis kelamin <span class="text-red-500">*</span></label>
+            <select name="gender"
+                    class="w-full px-3 py-2 rounded-lg border klinika-border text-sm focus:outline-none @error('gender') border-red-400 @enderror">
+                <option value="">Pilih jenis kelamin</option>
+                <option value="L" {{ old('gender') === 'L' ? 'selected' : '' }}>Laki-laki</option>
+                <option value="P" {{ old('gender') === 'P' ? 'selected' : '' }}>Perempuan</option>
+            </select>
+            @error('gender')<p class="text-xs mt-1" style="color:#be123c">{{ $message }}</p>@enderror
+        </div>
+
+        {{-- Tempat lahir --}}
+        <div>
+            <label class="block text-xs font-semibold klinika-muted mb-1">Tempat lahir <span class="text-red-500">*</span></label>
+            <input type="text" name="birth_place" value="{{ old('birth_place') }}"
+                   placeholder="Kota/kabupaten kelahiran"
+                   class="w-full px-3 py-2 rounded-lg border klinika-border text-sm focus:outline-none @error('birth_place') border-red-400 @enderror">
+            @error('birth_place')<p class="text-xs mt-1" style="color:#be123c">{{ $message }}</p>@enderror
+        </div>
+
+        {{-- Tanggal lahir --}}
+        <div>
+            <label class="block text-xs font-semibold klinika-muted mb-1">Tanggal lahir <span class="text-red-500">*</span></label>
+            <input type="date" name="birth_date" value="{{ old('birth_date') }}"
+                   max="{{ now()->toDateString() }}"
+                   class="w-full px-3 py-2 rounded-lg border klinika-border text-sm focus:outline-none @error('birth_date') border-red-400 @enderror">
+            @error('birth_date')<p class="text-xs mt-1" style="color:#be123c">{{ $message }}</p>@enderror
+        </div>
+
+        {{-- Telepon --}}
+        <div>
+            <label class="block text-xs font-semibold klinika-muted mb-1">Nomor telepon <span class="text-red-500">*</span></label>
+            <input type="tel" name="phone" value="{{ old('phone') }}"
+                   placeholder="08xxxxxxxxxx"
+                   class="w-full px-3 py-2 rounded-lg border klinika-border text-sm focus:outline-none @error('phone') border-red-400 @enderror">
+            @error('phone')<p class="text-xs mt-1" style="color:#be123c">{{ $message }}</p>@enderror
+        </div>
+
+        {{-- Pekerjaan (optional) --}}
+        <div>
+            <label class="block text-xs font-semibold klinika-muted mb-1">Pekerjaan</label>
+            <input type="text" name="occupation" value="{{ old('occupation') }}"
+                   placeholder="Opsional"
+                   class="w-full px-3 py-2 rounded-lg border klinika-border text-sm focus:outline-none">
+        </div>
+    </div>
+
+    {{-- Alamat --}}
+    <div>
+        <label class="block text-xs font-semibold klinika-muted mb-1">Alamat domisili <span class="text-red-500">*</span></label>
+        <textarea name="address" rows="2"
+                  placeholder="Alamat lengkap tempat tinggal saat ini"
+                  class="w-full px-3 py-2 rounded-lg border klinika-border text-sm focus:outline-none resize-none @error('address') border-red-400 @enderror">{{ old('address') }}</textarea>
+        @error('address')<p class="text-xs mt-1" style="color:#be123c">{{ $message }}</p>@enderror
+    </div>
+</div>
+
+{{-- Kontak keluarga --}}
+<div class="klinika-card p-6 space-y-4">
+    <h3 class="font-semibold text-sm border-b klinika-border pb-3" style="color:var(--klinika-text)">Kontak keluarga</h3>
+    <p class="text-xs klinika-muted -mt-2">Dihubungi saat kondisi darurat. Opsional namun sangat disarankan.</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+            <label class="block text-xs font-semibold klinika-muted mb-1">Nama kontak</label>
+            <input type="text" name="emergency_contact_name" value="{{ old('emergency_contact_name') }}"
+                   placeholder="Nama lengkap"
+                   class="w-full px-3 py-2 rounded-lg border klinika-border text-sm focus:outline-none">
+        </div>
+        <div>
+            <label class="block text-xs font-semibold klinika-muted mb-1">Hubungan</label>
+            <select name="emergency_contact_relationship"
+                    class="w-full px-3 py-2 rounded-lg border klinika-border text-sm focus:outline-none">
+                <option value="">Pilih hubungan</option>
+                @foreach (['Suami', 'Istri', 'Ayah', 'Ibu', 'Anak', 'Kakak', 'Adik', 'Wali', 'Lainnya'] as $rel)
+                    <option value="{{ $rel }}" {{ old('emergency_contact_relationship') === $rel ? 'selected' : '' }}>{{ $rel }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs font-semibold klinika-muted mb-1">Telepon kontak</label>
+            <input type="tel" name="emergency_contact_phone" value="{{ old('emergency_contact_phone') }}"
+                   placeholder="08xxxxxxxxxx"
+                   class="w-full px-3 py-2 rounded-lg border klinika-border text-sm focus:outline-none">
+        </div>
+    </div>
+</div>
+
+{{-- Footer buttons --}}
+<div class="flex flex-wrap items-center gap-3">
+    @php $isDuplicate = $errors->has('nik') && session('duplicate_patient'); @endphp
+
+    <button type="submit" id="submitBtn"
+            {{ $isDuplicate ? 'disabled' : '' }}
+            class="px-5 py-2 rounded-lg text-sm font-semibold text-white transition-colors {{ $isDuplicate ? 'opacity-40 cursor-not-allowed bg-gray-400' : 'klinika-primary' }}">
+        Simpan pasien
+    </button>
+
+    @if ($isDuplicate)
+    <a href="{{ session('duplicate_patient.url') }}"
+       class="inline-flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-semibold text-white"
+       style="background:#be123c">
+        Buka {{ session('duplicate_patient.rm') }}
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+    </a>
+    @endif
+
+    <a href="{{ route('patients.index') }}"
+       class="px-4 py-2 rounded-lg text-sm font-medium border klinika-border klinika-muted hover:bg-gray-50 transition-colors">
+        Batal
+    </a>
+</div>
+
+</form>
+
+<p class="text-center text-xs klinika-muted pt-2">Data simulasi &bull; Bukan data pasien nyata | Klinika RME &bull; Akses tercatat</p>
 @endsection
