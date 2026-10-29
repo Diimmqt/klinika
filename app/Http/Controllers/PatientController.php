@@ -131,6 +131,7 @@ class PatientController extends Controller
     public function show(Patient $patient): View
     {
         abort_unless(auth()->user()?->can('patient.view'), 403, 'Akses ditolak: Anda tidak memiliki izin melihat data pasien.');
+        $patient->load(['visits.poli', 'visits.queue', 'creator']);
         return view('patients.show', compact('patient'));
     }
 

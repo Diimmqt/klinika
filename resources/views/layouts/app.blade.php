@@ -128,20 +128,56 @@
                 <span>Data pasien</span>
             </a>
 
-            <a href="#"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-md font-medium text-sm klinika-nav-idle opacity-50 cursor-not-allowed">
+            <a href="{{ route('visits.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-md font-medium text-sm transition-colors {{ request()->routeIs('visits.*') ? 'klinika-nav-active' : 'klinika-nav-idle' }}">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                 </svg>
                 <span>Kunjungan</span>
             </a>
 
-            <a href="#"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-md font-medium text-sm klinika-nav-idle opacity-50 cursor-not-allowed">
+            <a href="{{ route('queues.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-md font-medium text-sm transition-colors {{ request()->routeIs('queues.*') ? 'klinika-nav-active' : 'klinika-nav-idle' }}">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
                 </svg>
                 <span>Antrean</span>
+            </a>
+            @endrole
+
+            @role('dokter')
+            <a href="{{ route('dokter.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-md font-medium text-sm transition-colors {{ request()->routeIs('dokter.index') ? 'klinika-nav-active' : 'klinika-nav-idle' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                <span>Dashboard Dokter</span>
+            </a>
+
+            <a href="{{ route('dokter.queue') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-md font-medium text-sm transition-colors {{ request()->routeIs('dokter.queue') || request()->routeIs('dokter.examination') ? 'klinika-nav-active' : 'klinika-nav-idle' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                </svg>
+                <span>Antrean Pemeriksaan</span>
+            </a>
+            @endrole
+
+            @role('perawat')
+            <a href="{{ route('perawat.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-md font-medium text-sm transition-colors {{ request()->routeIs('perawat.index') ? 'klinika-nav-active' : 'klinika-nav-idle' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                <span>Dashboard Perawat</span>
+            </a>
+
+            <a href="{{ route('perawat.queue') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-md font-medium text-sm transition-colors {{ request()->routeIs('perawat.queue') || request()->routeIs('perawat.examination') ? 'klinika-nav-active' : 'klinika-nav-idle' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                </svg>
+                <span>Antrean Awal</span>
             </a>
             @endrole
         </nav>

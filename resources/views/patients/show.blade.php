@@ -16,6 +16,14 @@
         </a>
 
         <div class="flex items-center gap-2">
+            <a href="{{ route('visits.create', ['patient_id' => $patient->id]) }}" 
+               class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold transition-colors shadow-sm shadow-teal-200">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                <span>+ Buat Kunjungan</span>
+            </a>
+
             <a href="{{ route('patients.edit', $patient) }}" 
                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-colors shadow-xs">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -152,6 +160,85 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Riwayat Kunjungan Pasien -->
+    <div class="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+            <div>
+                <h3 class="text-base font-bold text-slate-900">Riwayat Kunjungan Pasien</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Daftar rekam kedatangan dan riwayat nomor antrean pasien ini.</p>
+            </div>
+            <a href="{{ route('visits.create', ['patient_id' => $patient->id]) }}" 
+               class="text-xs font-semibold text-teal-600 hover:text-teal-700 flex items-center gap-1">
+                <span>+ Buat Kunjungan Baru</span>
+            </a>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-slate-200 bg-slate-50/75 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                        <th class="py-3 px-5">No. Kunjungan</th>
+                        <th class="py-3 px-5">Tanggal</th>
+                        <th class="py-3 px-5">Poli Tujuan</th>
+                        <th class="py-3 px-5">No. Antrean</th>
+                        <th class="py-3 px-5">Status</th>
+                        <th class="py-3 px-5 text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-sm">
+                    @forelse ($patient->visits as $visit)
+                        <tr class="hover:bg-slate-50/60 transition-colors">
+                            <td class="py-3.5 px-5 font-mono font-bold text-teal-700 text-xs">
+                                <a href="{{ route('visits.show', $visit) }}" class="hover:underline">
+                                    {{ $visit->visit_number }}
+                                </a>
+                            </td>
+                            <td class="py-3.5 px-5 text-xs text-slate-700">
+                                {{ $visit->visit_date ? $visit->visit_date->format('d/m/Y') : '-' }}
+                            </td>
+                            <td class="py-3.5 px-5 font-medium text-slate-900 text-xs">
+                                {{ $visit->poli->name ?? '-' }}
+                            </td>
+                            <td class="py-3.5 px-5">
+                                @if ($visit->queue)
+                                    <span class="font-mono font-bold text-xs bg-teal-50 text-teal-800 border border-teal-200/80 px-2 py-0.5 rounded">
+                                        {{ $visit->queue->queue_code }}
+                                    </span>
+                                @else
+                                    <span class="text-xs text-slate-400">-</span>
+                                @endif
+                            </td>
+                            <td class="py-3.5 px-5">
+                                <span class="text-[11px] font-medium px-2 py-0.5 rounded-full {{ 
+                                    $visit->status === 'registered' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                                    ($visit->status === 'in_progress' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
+                                    ($visit->status === 'completed' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                                    'bg-rose-50 text-rose-700 border border-rose-200')) }}">
+                                    {{ $visit->status_label }}
+                                </span>
+                            </td>
+                            <td class="py-3.5 px-5 text-right">
+                                <a href="{{ route('visits.show', $visit) }}" 
+                                   class="text-xs font-semibold text-teal-600 hover:text-teal-700">
+                                    Detail & Tiket →
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="py-8 text-center text-xs text-slate-500">
+                                Belum ada riwayat kunjungan untuk pasien ini.
+                                <a href="{{ route('visits.create', ['patient_id' => $patient->id]) }}" class="text-teal-600 font-semibold hover:underline block mt-1">
+                                    Daftarkan kunjungan pertama
+                                </a>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 

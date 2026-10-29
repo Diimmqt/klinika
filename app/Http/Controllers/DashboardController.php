@@ -18,6 +18,14 @@ class DashboardController extends Controller
             return redirect()->route('pendaftaran.dashboard');
         }
 
+        if ($user?->hasRole('dokter')) {
+            return redirect()->route('dokter.index');
+        }
+
+        if ($user?->hasRole('perawat')) {
+            return redirect()->route('perawat.index');
+        }
+
         if ($user?->can('patient.view')) {
             return redirect()->route('patients.index');
         }

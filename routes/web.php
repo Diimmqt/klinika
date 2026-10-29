@@ -8,8 +8,12 @@ use App\Http\Controllers\Admin\SuperAdminController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\NurseController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PendaftaranController;
+use App\Http\Controllers\QueueController;
+use App\Http\Controllers\VisitController;
 use Illuminate\Support\Facades\Route;
 
 // ── Auth ─────────────────────────────────────────────────────
@@ -24,9 +28,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('patients', PatientController::class);
+    Route::resource('visits', VisitController::class);
+
+    Route::get('queues', [QueueController::class, 'index'])->name('queues.index');
+    Route::patch('queues/{queue}/status', [QueueController::class, 'updateStatus'])->name('queues.update-status');
 
     Route::prefix('pendaftaran')->name('pendaftaran.')->group(function () {
         Route::get('/', [PendaftaranController::class, 'dashboard'])->name('dashboard');
+    });
+
+    Route::prefix('perawat')->name('perawat.')->group(function () {
+        Route::get('/', [NurseController::class, 'index'])->name('index');
+        Route::get('queue', [NurseController::class, 'queue'])->name('queue');
+        Route::get('examination/{queue}', [NurseController::class, 'examination'])->name('examination');
+        Route::post('examination/{queue}', [NurseController::class, 'storeExamination'])->name('examination.store');
+    });
+
+    Route::prefix('dokter')->name('dokter.')->group(function () {
+        Route::get('/', [DoctorController::class, 'index'])->name('index');
+        Route::get('queue', [DoctorController::class, 'queue'])->name('queue');
+        Route::get('examination/{queue}', [DoctorController::class, 'examination'])->name('examination');
+        Route::post('examination/{queue}', [DoctorController::class, 'storeExamination'])->name('examination.store');
+        Route::get('patient/{patient}/rme', [DoctorController::class, 'rme'])->name('rme');
     });
 
     Route::prefix('admin')->name('admin.')->middleware('role:super_admin')->group(function () {
