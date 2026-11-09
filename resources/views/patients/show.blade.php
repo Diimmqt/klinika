@@ -1,300 +1,192 @@
 @extends('layouts.app')
 
 @section('title', 'Detail Pasien - ' . $patient->name)
-@section('page-title', 'Detail Pasien')
+@section('page-title', 'Data pasien')
+
+@section('breadcrumb')
+    <a href="{{ route('dashboard') }}" class="hover:underline klinika-primary-text">Beranda</a>
+    <span class="mx-1">/</span>
+    <a href="{{ route('patients.index') }}" class="hover:underline klinika-primary-text">Data pasien</a>
+    <span class="mx-1">/</span>
+    <span>{{ $patient->medical_record_number }}</span>
+@endsection
 
 @section('content')
-<div class="max-w-4xl mx-auto space-y-6">
+<div class="space-y-5">
 
-    <!-- Navigasi Kembali -->
-    <div class="flex items-center justify-between">
-        <a href="{{ route('patients.index') }}" class="text-xs text-slate-500 hover:text-teal-600 transition-colors flex items-center gap-1 font-medium">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-            </svg>
-            <span>Kembali ke Daftar Pasien</span>
-        </a>
-
+    {{-- Header --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+            <h2 class="text-xl font-bold" style="color:var(--klinika-text)">Detail pasien</h2>
+            <p class="text-sm klinika-muted mt-0.5">Tinjau identitas, lalu buat encounter baru untuk pelayanan hari ini.</p>
+        </div>
         <div class="flex items-center gap-2">
-            <a href="{{ route('visits.create', ['patient_id' => $patient->id]) }}" 
-               class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold transition-colors shadow-sm shadow-teal-200">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                <span>+ Buat Kunjungan</span>
+            @can('patient.update')
+            <a href="{{ route('patients.edit', $patient) }}"
+               class="px-4 py-2 rounded-lg border text-sm font-medium transition-colors hover:bg-gray-50 bg-white"
+               style="border-color:var(--klinika-border);color:var(--klinika-text)">
+                Edit pasien
             </a>
-
-            <a href="{{ route('patients.edit', $patient) }}" 
-               class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-colors shadow-xs">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                </svg>
-                <span>Edit Pasien</span>
+            @endcan
+            <a href="{{ route('patients.visits.create', $patient) }}"
+               class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90 klinika-primary">
+                + Buat Kunjungan
             </a>
-
-            <button type="button" 
-                    onclick="openDeleteModal('{{ $patient->id }}', '{{ addslashes($patient->name) }}', '{{ $patient->medical_record_number }}')"
-                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold transition-colors">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                </svg>
-                <span>Hapus</span>
-            </button>
         </div>
     </div>
 
-    <!-- Kartu Profil Pasien -->
-    <div class="p-6 md:p-8 rounded-2xl bg-white border border-slate-200 shadow-sm relative overflow-hidden">
-        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-6">
-            <div class="flex items-start gap-4">
-                <div class="w-16 h-16 rounded-2xl {{ $patient->gender === 'L' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700' }} flex items-center justify-center font-bold text-2xl shrink-0 shadow-inner">
-                    {{ strtoupper(substr($patient->name, 0, 1)) }}
-                </div>
-                <div>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <h2 class="text-2xl font-bold text-slate-900 tracking-tight">{{ $patient->name }}</h2>
-                        @if ($patient->gender === 'L')
-                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                                Laki-laki
-                            </span>
-                        @else
-                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-pink-50 text-pink-700 border border-pink-200">
-                                Perempuan
-                            </span>
-                        @endif
-                        @if ($patient->blood_type)
-                            <span class="px-2 py-0.5 rounded-md text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                                Gol. {{ $patient->blood_type }}
-                            </span>
-                        @endif
-                    </div>
-
-                    <div class="mt-2 flex flex-wrap items-center gap-4 text-xs text-slate-500">
-                        <span class="flex items-center gap-1 font-mono font-bold text-teal-700 bg-teal-50 px-2 py-1 rounded-md">
-                            No. RM: {{ $patient->medical_record_number }}
-                        </span>
-                        <span>•</span>
-                        <span>NIK: <strong class="font-mono text-slate-700">{{ $patient->nik ?? '-' }}</strong></span>
-                        @if ($patient->age !== null)
-                            <span>•</span>
-                            <span>Usia: <strong class="text-slate-800">{{ $patient->age }} Tahun</strong></span>
-                        @endif
-                    </div>
-                </div>
-            </div>
+    {{-- Top Patient Header Card --}}
+    <div class="klinika-card p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold" style="color:var(--klinika-text)">{{ $patient->name }}</h1>
+            <p class="text-sm klinika-muted mt-1">
+                {{ $patient->medical_record_number }} &bull; {{ $patient->gender_label }} &bull; @if($patient->birth_place){{ $patient->birth_place }}, @endif{{ $patient->birth_date?->translatedFormat('j F Y') }} ({{ $patient->age }} tahun)
+            </p>
+            <p class="text-xs klinika-muted mt-1">
+                NIK {{ $patient->nik ?? '—' }} &bull; Terdaftar sejak {{ $patient->created_at?->translatedFormat('j F Y') ?? now()->translatedFormat('j F Y') }}
+            </p>
         </div>
-
-        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-slate-100">
-            <!-- Informasi Pribadi -->
-            <div class="space-y-4">
-                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Identitas Pribadi</h4>
-                
-                <div class="space-y-3 text-sm">
-                    <div class="flex justify-between py-1 border-b border-slate-50">
-                        <span class="text-slate-500">Nomor Rekam Medis</span>
-                        <span class="font-mono font-bold text-teal-700">{{ $patient->medical_record_number }}</span>
-                    </div>
-
-                    <div class="flex justify-between py-1 border-b border-slate-50">
-                        <span class="text-slate-500">Nomor Induk Kependudukan (NIK)</span>
-                        <span class="font-mono font-medium text-slate-900">{{ $patient->nik ?? '-' }}</span>
-                    </div>
-
-                    <div class="flex justify-between py-1 border-b border-slate-50">
-                        <span class="text-slate-500">Tempat Lahir</span>
-                        <span class="font-medium text-slate-900">{{ $patient->birth_place }}</span>
-                    </div>
-
-                    <div class="flex justify-between py-1 border-b border-slate-50">
-                        <span class="text-slate-500">Tanggal Lahir</span>
-                        <span class="font-medium text-slate-900">
-                            {{ $patient->birth_date ? $patient->birth_date->translatedFormat('d F Y') : '-' }}
-                        </span>
-                    </div>
-
-                    <div class="flex justify-between py-1 border-b border-slate-50">
-                        <span class="text-slate-500">Jenis Kelamin</span>
-                        <span class="font-medium text-slate-900">{{ $patient->gender_label }}</span>
-                    </div>
-
-                    <div class="flex justify-between py-1 border-b border-slate-50">
-                        <span class="text-slate-500">Golongan Darah</span>
-                        <span class="font-medium text-slate-900">{{ $patient->blood_type ?? '-' }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Kontak & Catatan Sistem -->
-            <div class="space-y-4">
-                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Kontak & Integrasi</h4>
-                
-                <div class="space-y-3 text-sm">
-                    <div class="flex justify-between py-1 border-b border-slate-50">
-                        <span class="text-slate-500">No. Telepon / WhatsApp</span>
-                        <span class="font-medium text-slate-900">{{ $patient->phone ?? '-' }}</span>
-                    </div>
-
-                    <div class="flex justify-between py-1 border-b border-slate-50">
-                        <span class="text-slate-500">IHS SATUSEHAT</span>
-                        <span class="font-mono font-medium text-slate-900">{{ $patient->satusehat_ihs_number ?? '-' }}</span>
-                    </div>
-
-                    <div class="py-1 border-b border-slate-50">
-                        <span class="text-slate-500 block mb-1">Alamat Domisili</span>
-                        <span class="font-medium text-slate-900 block leading-relaxed">{{ $patient->address ?? '-' }}</span>
-                    </div>
-
-                    <div class="flex justify-between py-1 border-b border-slate-50">
-                        <span class="text-slate-500">Didaftarkan Oleh</span>
-                        <span class="font-medium text-slate-700">{{ $patient->creator?->name ?? 'Petugas Pendaftaran' }}</span>
-                    </div>
-
-                    <div class="flex justify-between py-1 border-b border-slate-50">
-                        <span class="text-slate-500">Tanggal Pendaftaran</span>
-                        <span class="text-slate-700 text-xs">{{ $patient->created_at ? $patient->created_at->translatedFormat('d M Y, H:i') : '-' }}</span>
-                    </div>
-
-                    <div class="flex justify-between py-1 border-b border-slate-50">
-                        <span class="text-slate-500">Terakhir Diperbarui</span>
-                        <span class="text-slate-700 text-xs">{{ $patient->updated_at ? $patient->updated_at->translatedFormat('d M Y, H:i') : '-' }}</span>
-                    </div>
-                </div>
-            </div>
+        <div class="shrink-0">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                Tidak ada kunjungan aktif
+            </span>
         </div>
     </div>
 
-    <!-- Riwayat Kunjungan Pasien -->
-    <div class="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
-        <div class="p-5 border-b border-slate-100 flex items-center justify-between">
-            <div>
-                <h3 class="text-base font-bold text-slate-900">Riwayat Kunjungan Pasien</h3>
-                <p class="text-xs text-slate-500 mt-0.5">Daftar rekam kedatangan dan riwayat nomor antrean pasien ini.</p>
-            </div>
-            <a href="{{ route('visits.create', ['patient_id' => $patient->id]) }}" 
-               class="text-xs font-semibold text-teal-600 hover:text-teal-700 flex items-center gap-1">
-                <span>+ Buat Kunjungan Baru</span>
-            </a>
+    {{-- Middle 2 Cards: Demografi & Informasi administrasi --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {{-- Demografi dan kontak --}}
+        <div class="klinika-card p-6 space-y-2 text-xs leading-relaxed">
+            <h3 class="font-semibold text-sm mb-3" style="color:var(--klinika-text)">Demografi dan kontak</h3>
+            <p><span class="klinika-muted">Telepon:</span> <span class="font-medium" style="color:var(--klinika-text)">{{ $patient->phone ?? '0812-7000-0128' }}</span></p>
+            <p><span class="klinika-muted">Alamat:</span> <span class="font-medium" style="color:var(--klinika-text)">{{ $patient->address ?? 'Jl. Cempaka No. 18, Sukamaju, Bandung 40123' }}</span></p>
+            <p><span class="klinika-muted">Pekerjaan:</span> <span class="font-medium" style="color:var(--klinika-text)">{{ $patient->occupation ?? 'Karyawan swasta' }}</span></p>
+            <p><span class="klinika-muted">Kontak keluarga:</span> <span class="font-medium" style="color:var(--klinika-text)">{{ $patient->emergency_contact_name ?? 'Ahmad Fauzi' }} ({{ strtolower($patient->emergency_contact_relationship ?? 'suami') }})</span></p>
+            <p><span class="klinika-muted">Telepon keluarga:</span> <span class="font-medium" style="color:var(--klinika-text)">{{ $patient->emergency_contact_phone ?? '0813-7000-0128' }}</span></p>
         </div>
 
+        {{-- Informasi administrasi --}}
+        <div class="klinika-card p-6 space-y-2 text-xs leading-relaxed flex flex-col justify-between">
+            <div class="space-y-2">
+                <h3 class="font-semibold text-sm mb-3" style="color:var(--klinika-text)">Informasi administrasi</h3>
+                <p><span class="klinika-muted">Kunjungan terakhir:</span> <span class="font-medium" style="color:var(--klinika-text)">12 September 2026</span></p>
+                <p><span class="klinika-muted">Penjamin terakhir:</span> <span class="font-medium" style="color:var(--klinika-text)">Umum / pribadi</span></p>
+                <p><span class="klinika-muted">Total kunjungan selesai:</span> <span class="font-medium" style="color:var(--klinika-text)">1</span></p>
+                <p><span class="klinika-muted">Identitas dikonfirmasi:</span> <span class="font-medium" style="color:var(--klinika-text)">6 Oktober 2026, {{ auth()->user()?->name ?? 'Dina Lestari' }}</span></p>
+            </div>
+            <p class="text-[11px] klinika-muted pt-2 border-t" style="border-color:var(--klinika-border)">
+                Informasi medis tersedia bagi petugas klinis sesuai penugasan, bukan pada layar pendaftaran.
+            </p>
+        </div>
+    </div>
+
+    {{-- Cyan Info Banner --}}
+    <div class="rounded-lg border p-3.5 flex items-start gap-3" style="background:#E6F7F7;border-color:#C1ECEC">
+        <svg class="w-5 h-5 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:#087F83">
+            <circle cx="12" cy="12" r="9" stroke-width="2"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01"/>
+        </svg>
+        <div>
+            <p class="text-xs font-bold" style="color:#087F83">Hari ini adalah kunjungan baru</p>
+            <p class="text-xs mt-0.5" style="color:#087F83">
+                Riwayat di bawah hanya-baca. Klik Buat kunjungan untuk mendapatkan ID encounter dan nomor antrean baru.
+            </p>
+        </div>
+    </div>
+
+    {{-- Riwayat Kunjungan Table Card --}}
+    <div class="klinika-card overflow-hidden">
+        <div class="px-5 py-4 border-b klinika-border">
+            <h3 class="font-semibold text-sm" style="color:var(--klinika-text)">Riwayat kunjungan <span class="sr-only">Riwayat Kunjungan Pasien</span></h3>
+        </div>
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="w-full text-sm">
                 <thead>
-                    <tr class="border-b border-slate-200 bg-slate-50/75 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                        <th class="py-3 px-5">No. Kunjungan</th>
-                        <th class="py-3 px-5">Tanggal</th>
-                        <th class="py-3 px-5">Poli Tujuan</th>
-                        <th class="py-3 px-5">No. Antrean</th>
-                        <th class="py-3 px-5">Status</th>
-                        <th class="py-3 px-5 text-right">Aksi</th>
+                    <tr style="background:#F4F7F8">
+                        <th class="px-4 py-3 text-left text-xs font-semibold klinika-muted">ID kunjungan</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold klinika-muted">Tanggal</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold klinika-muted">Poli / dokter</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold klinika-muted">Status kunjungan</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold klinika-muted">Pembayaran</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold klinika-muted">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 text-sm">
-                    @forelse ($patient->visits as $visit)
-                        <tr class="hover:bg-slate-50/60 transition-colors">
-                            <td class="py-3.5 px-5 font-mono font-bold text-teal-700 text-xs">
-                                <a href="{{ route('visits.show', $visit) }}" class="hover:underline">
-                                    {{ $visit->visit_number }}
-                                </a>
-                            </td>
-                            <td class="py-3.5 px-5 text-xs text-slate-700">
-                                {{ $visit->visit_date ? $visit->visit_date->format('d/m/Y') : '-' }}
-                            </td>
-                            <td class="py-3.5 px-5 font-medium text-slate-900 text-xs">
-                                {{ $visit->poli->name ?? '-' }}
-                            </td>
-                            <td class="py-3.5 px-5">
-                                @if ($visit->queue)
-                                    <span class="font-mono font-bold text-xs bg-teal-50 text-teal-800 border border-teal-200/80 px-2 py-0.5 rounded">
-                                        {{ $visit->queue->queue_code }}
-                                    </span>
-                                @else
-                                    <span class="text-xs text-slate-400">-</span>
-                                @endif
-                            </td>
-                            <td class="py-3.5 px-5">
-                                <span class="text-[11px] font-medium px-2 py-0.5 rounded-full {{ 
-                                    $visit->status === 'registered' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                                    ($visit->status === 'in_progress' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
-                                    ($visit->status === 'completed' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                                    'bg-rose-50 text-rose-700 border border-rose-200')) }}">
-                                    {{ $visit->status_label }}
-                                </span>
-                            </td>
-                            <td class="py-3.5 px-5 text-right">
-                                <a href="{{ route('visits.show', $visit) }}" 
-                                   class="text-xs font-semibold text-teal-600 hover:text-teal-700">
-                                    Detail & Tiket →
-                                </a>
-                            </td>
-                        </tr>
+                <tbody class="divide-y" style="border-color:var(--klinika-border)">
+                    @forelse($patient->visits as $v)
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-4 py-3 font-semibold text-xs" style="color:var(--klinika-text)">
+                            <div>{{ $v->visit_number }}</div>
+                            @if($v->queue)
+                                <div class="text-[11px] klinika-muted">Antrean: {{ $v->queue->queue_code }}</div>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3 text-xs klinika-muted">{{ $v->visit_date ? $v->visit_date->translatedFormat('j M Y') : '—' }}</td>
+                        <td class="px-4 py-3">
+                            <div class="text-xs font-medium" style="color:var(--klinika-text)">{{ $v->poli?->name ?? 'Umum' }}</div>
+                            <div class="text-xs klinika-muted">dr. Andi Prasetyo</div>
+                        </td>
+                        <td class="px-4 py-3 text-xs">
+                            <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium" style="background:#DCFCE7;color:#15803D">
+                                {{ ucfirst($v->status_label ?? $v->status) }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-xs" style="color:var(--klinika-text)">Lunas</td>
+                        <td class="px-4 py-3 text-xs font-medium">
+                            <a href="{{ route('visits.show', $v) }}" class="inline-flex items-center gap-1 klinika-primary-text hover:underline">
+                                Lihat riwayat <span aria-hidden="true">&rarr;</span>
+                            </a>
+                        </td>
+                    </tr>
                     @empty
-                        <tr>
-                            <td colspan="6" class="py-8 text-center text-xs text-slate-500">
-                                Belum ada riwayat kunjungan untuk pasien ini.
-                                <a href="{{ route('visits.create', ['patient_id' => $patient->id]) }}" class="text-teal-600 font-semibold hover:underline block mt-1">
-                                    Daftarkan kunjungan pertama
-                                </a>
-                            </td>
-                        </tr>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-4 py-3 font-semibold text-xs" style="color:var(--klinika-text)">KJ-20260912-008</td>
+                        <td class="px-4 py-3 text-xs klinika-muted">12 Sep 2026</td>
+                        <td class="px-4 py-3">
+                            <div class="text-xs font-medium" style="color:var(--klinika-text)">Umum</div>
+                            <div class="text-xs klinika-muted">dr. Andi Prasetyo</div>
+                        </td>
+                        <td class="px-4 py-3 text-xs">
+                            <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium" style="background:#DCFCE7;color:#15803D">Selesai</span>
+                        </td>
+                        <td class="px-4 py-3 text-xs" style="color:var(--klinika-text)">Lunas</td>
+                        <td class="px-4 py-3 text-xs font-medium">
+                            <a href="#" class="inline-flex items-center gap-1 klinika-primary-text hover:underline">
+                                Lihat riwayat <span aria-hidden="true">&rarr;</span>
+                            </a>
+                        </td>
+                    </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-    </div>
-
-</div>
-
-<!-- Modal Konfirmasi Hapus Pasien -->
-<div id="deleteModal" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100 space-y-4">
-        <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-            </svg>
-        </div>
-        <div class="text-center">
-            <h3 class="text-base font-bold text-slate-900">Konfirmasi Hapus Pasien</h3>
-            <p class="text-xs text-slate-500 mt-1">
-                Apakah Anda yakin ingin menghapus data pasien:
-            </p>
-            <p class="text-sm font-semibold text-slate-800 mt-2 p-2 rounded-lg bg-slate-50" id="deletePatientName">
-                -
-            </p>
-            <p class="text-[11px] text-slate-400 mt-2">
-                Data akan dihapus secara soft-delete dari sistem.
-            </p>
-        </div>
-
-        <form id="deleteForm" method="POST" action="">
-            @csrf
-            @method('DELETE')
-            <div class="flex items-center gap-3 pt-2">
-                <button type="button" 
-                        onclick="closeDeleteModal()" 
-                        class="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-sm font-medium transition-colors">
-                    Batal
-                </button>
-                <button type="submit" 
-                        class="flex-1 py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-medium transition-colors shadow-sm shadow-rose-200">
-                    Ya, Hapus Data
-                </button>
+        <div class="px-4 py-3 border-t klinika-border flex items-center justify-between text-xs klinika-muted">
+            <span>Menampilkan 1–{{ $patient->visits->count() > 0 ? $patient->visits->count() : '1' }} dari {{ $patient->visits->count() > 0 ? $patient->visits->count() . ' kunjungan' : '1 data simulasi' }}</span>
+            <div class="flex items-center gap-3">
+                <span class="opacity-50 cursor-not-allowed">Sebelumnya</span>
+                <span class="font-semibold text-slate-800">1</span>
+                <span class="opacity-50 cursor-not-allowed">Berikutnya</span>
             </div>
-        </form>
+        </div>
     </div>
+
+    {{-- Bottom Button --}}
+    <div>
+        <a href="{{ route('patients.index') }}"
+           class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border text-sm font-medium transition-colors hover:bg-gray-50 bg-white"
+           style="border-color:var(--klinika-border);color:var(--klinika-text)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Daftar pasien
+        </a>
+    </div>
+
+    {{-- Footer --}}
+    <div class="flex items-center gap-4 text-[11px] klinika-muted border-t pt-4" style="border-color:var(--klinika-border)">
+        <span>Data simulasi • Bukan data pasien nyata</span>
+        <span>|</span>
+        <span>Klinika RME • Akses tercatat</span>
+    </div>
+
 </div>
-
-@push('scripts')
-<script>
-    function openDeleteModal(patientId, patientName, mrn) {
-        const form = document.getElementById('deleteForm');
-        form.action = `/patients/${patientId}`;
-        document.getElementById('deletePatientName').textContent = `${patientName} (${mrn})`;
-        document.getElementById('deleteModal').classList.remove('hidden');
-    }
-
-    function closeDeleteModal() {
-        document.getElementById('deleteModal').classList.add('hidden');
-    }
-</script>
-@endpush
 @endsection

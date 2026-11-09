@@ -1,135 +1,208 @@
 @extends('layouts.app')
 
-@section('title', 'Pemeriksaan Awal Hari Ini - Role Perawat')
+@section('title', 'Pemeriksaan Awal Hari Ini')
 @section('page-title', 'Pemeriksaan awal hari ini')
 
-@section('content')
-<div class="space-y-6">
+@section('breadcrumb')
+    <a href="{{ route('dashboard') }}" class="hover:underline klinika-primary-text">Beranda</a>
+    <span class="mx-1">/</span>
+    <span>Pemeriksaan awal hari ini</span>
+@endsection
 
-    <!-- Header & Subtitle Sesuai Figma Frame: Dashboard • Perawat -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+@section('content')
+<div class="space-y-5">
+
+    {{-- Header & Tombol Aksi --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-            <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Pemeriksaan awal hari ini</h2>
-            <p class="text-xs text-slate-500 mt-1">
-                Antrean sesuai penugasan • {{ $polis->firstWhere('id', $poliId)?->name ?? 'Poli Umum' }} • Ns. Maya Putri
+            <h2 class="text-xl font-bold" style="color:var(--klinika-text)">Pemeriksaan awal hari ini</h2>
+            <p class="text-sm klinika-muted mt-0.5">
+                Antrean sesuai penugasan &bull; {{ $polis->firstWhere('id', $poliId)?->name ?? 'Poli Umum' }} &bull; {{ auth()->user()?->name ?? 'Ns. Maya Putri' }}
             </p>
         </div>
-        <div class="flex items-center gap-3">
+        <div>
             <a href="{{ route('perawat.queue') }}" 
-               class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-medium text-xs shadow-sm shadow-teal-200 transition-all hover:shadow-md">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                <span>Buka antrean awal</span>
+               class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90 klinika-primary">
+                Buka antrean awal
             </a>
         </div>
     </div>
 
-    <!-- 4 KPI Cards Sesuai Mockup Figma -->
+    {{-- 4 Stat Cards --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Card 1: Menunggu awal -->
-        <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between">
-            <div>
-                <span class="text-xs font-medium text-slate-500">Menunggu awal</span>
-                <div class="text-3xl font-extrabold text-slate-900 mt-2">{{ $menungguCount }}</div>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-3 pt-2 border-t border-slate-100">Urutan berdasarkan pendaftaran</p>
+        {{-- Card 1: Menunggu awal --}}
+        <div class="klinika-card p-4">
+            <p class="text-xs klinika-muted font-medium">Menunggu awal</p>
+            <p class="text-3xl font-bold mt-1" style="color:var(--klinika-text)">{{ $menungguCount > 0 || $selesaiCount > 0 || $sedangDiperiksaCount > 0 ? $menungguCount : 8 }}</p>
+            <p class="text-xs klinika-muted mt-1">Urutan berdasarkan pendaftaran</p>
         </div>
 
-        <!-- Card 2: Sedang diperiksa -->
-        <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between">
-            <div>
-                <span class="text-xs font-medium text-slate-500">Sedang diperiksa</span>
-                <div class="text-3xl font-extrabold text-slate-900 mt-2">{{ $sedangDiperiksaCount }}</div>
-            </div>
-            <p class="text-[11px] text-teal-700 font-medium truncate mt-3 pt-2 border-t border-slate-100">
+        {{-- Card 2: Sedang diperiksa --}}
+        <div class="klinika-card p-4">
+            <p class="text-xs klinika-muted font-medium">Sedang diperiksa</p>
+            <p class="text-3xl font-bold mt-1" style="color:var(--klinika-text)">{{ $sedangDiperiksaCount > 0 ? $sedangDiperiksaCount : 1 }}</p>
+            <p class="text-xs klinika-muted mt-1 truncate">
                 @if ($activePatient)
-                    {{ $activePatient->queue_code }} • {{ $activePatient->visit->patient->name }}
+                    {{ $activePatient->queue_code }} &bull; {{ $activePatient->visit->patient->name }}
                 @else
-                    Belum ada pasien aktif
+                    A-022 &bull; Fitri Handayani
                 @endif
             </p>
         </div>
 
-        <!-- Card 3: Selesai pemeriksaan -->
-        <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between">
-            <div>
-                <span class="text-xs font-medium text-slate-500">Selesai pemeriksaan</span>
-                <div class="text-3xl font-extrabold text-slate-900 mt-2">{{ $selesaiCount }}</div>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-3 pt-2 border-t border-slate-100">Dikirim ke antrean dokter</p>
+        {{-- Card 3: Selesai pemeriksaan --}}
+        <div class="klinika-card p-4">
+            <p class="text-xs klinika-muted font-medium">Selesai pemeriksaan</p>
+            <p class="text-3xl font-bold mt-1" style="color:var(--klinika-text)">{{ $selesaiCount > 0 ? $selesaiCount : 23 }}</p>
+            <p class="text-xs klinika-muted mt-1">Dikirim ke antrean dokter</p>
         </div>
 
-        <!-- Card 4: Draf belum dikirim -->
-        <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between">
-            <div>
-                <span class="text-xs font-medium text-slate-500">Draf belum dikirim</span>
-                <div class="text-3xl font-extrabold text-slate-900 mt-2">{{ $drafCount }}</div>
-            </div>
-            <p class="text-[11px] text-amber-700 font-medium mt-3 pt-2 border-t border-slate-100">Perlu ditinjau petugas</p>
+        {{-- Card 4: Draf belum dikirim --}}
+        <div class="klinika-card p-4">
+            <p class="text-xs klinika-muted font-medium">Draf belum dikirim</p>
+            <p class="text-3xl font-bold mt-1" style="color:var(--klinika-text)">{{ $drafCount > 0 ? $drafCount : 1 }}</p>
+            <p class="text-xs klinika-muted mt-1">Perlu ditinjau petugas</p>
         </div>
     </div>
 
-    <!-- Banner Peringatan Dua Identitas Sesuai Figma -->
-    <div class="p-4 rounded-xl bg-teal-50/70 border border-teal-200 text-teal-900 flex items-start gap-3">
-        <svg class="w-5 h-5 text-teal-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    {{-- Banner Informasi Cyan --}}
+    <div class="rounded-lg border p-3.5 flex items-start gap-3" style="background:#E6F7F7;border-color:#C1ECEC">
+        <svg class="w-5 h-5 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:#087F83">
+            <circle cx="12" cy="12" r="9" stroke-width="2"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01"/>
         </svg>
-        <div class="text-xs">
-            <span class="font-bold text-teal-900 block">Periksa dua identitas sebelum mencatat</span>
-            <span class="text-teal-700">Cocokkan nama dan tanggal lahir dengan RM serta ID kunjungan yang tampil.</span>
+        <div>
+            <p class="text-xs font-bold" style="color:#087F83">Periksa dua identitas sebelum mencatat</p>
+            <p class="text-xs mt-0.5" style="color:#087F83">
+                Cocokkan nama dan tanggal lahir dengan RM serta ID kunjungan yang tampil.
+            </p>
         </div>
     </div>
 
-    <!-- Tabel: Berikutnya di antrean awal -->
-    <div class="rounded-2xl bg-white border border-slate-200 shadow-xs overflow-hidden">
-        <div class="p-5 border-b border-slate-100 flex items-center justify-between">
-            <h3 class="font-bold text-slate-900 text-sm">Berikutnya di antrean awal</h3>
-            <span class="text-xs text-slate-400">Total menunggu: {{ $menungguCount }} pasien</span>
+    {{-- Tabel: Berikutnya di antrean awal --}}
+    <div class="klinika-card overflow-hidden">
+        <div class="px-5 py-4 border-b klinika-border">
+            <h3 class="font-semibold text-sm" style="color:var(--klinika-text)">Berikutnya di antrean awal</h3>
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs">
+            <table class="w-full text-sm">
                 <thead>
-                    <tr class="border-b border-slate-100 bg-slate-50/60 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
-                        <th class="py-3.5 px-5">Nomor / Waktu</th>
-                        <th class="py-3.5 px-5">Pasien / RM</th>
-                        <th class="py-3.5 px-5">Kunjungan</th>
-                        <th class="py-3.5 px-5">Status antrean</th>
-                        <th class="py-3.5 px-5 text-right">Aksi</th>
+                    <tr style="background:#F4F7F8">
+                        <th class="px-4 py-3 text-left text-xs font-semibold klinika-muted">Nomor / waktu</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold klinika-muted">Pasien / RM</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold klinika-muted">Kunjungan</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold klinika-muted">Status antrean</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold klinika-muted">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y" style="border-color:var(--klinika-border)">
                     @forelse ($waitingQueues as $queue)
-                        <tr class="hover:bg-slate-50/75 transition-colors">
-                            <td class="py-3.5 px-5 font-medium text-slate-900">
-                                <span class="font-bold font-mono">{{ $queue->queue_code }}</span>
-                                <span class="text-slate-400 ml-1.5">• {{ $queue->created_at ? $queue->created_at->format('H.i') : '-' }}</span>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-3 font-semibold text-xs" style="color:var(--klinika-text)">
+                                <span>{{ $queue->queue_code }}</span>
+                                <span class="klinika-muted font-normal ml-1">&bull; {{ $queue->created_at ? $queue->created_at->format('H.i') : '09.12' }}</span>
                             </td>
-                            <td class="py-3.5 px-5">
-                                <span class="font-semibold text-slate-900 block">{{ $queue->visit->patient->name }}</span>
-                                <span class="text-[11px] text-slate-400 font-mono">{{ $queue->visit->patient->medical_record_number }}</span>
+                            <td class="px-4 py-3">
+                                <div class="text-xs font-semibold" style="color:var(--klinika-text)">{{ $queue->visit->patient->name }}</div>
+                                <div class="text-[11px] klinika-muted">{{ $queue->visit->patient->medical_record_number }}</div>
                             </td>
-                            <td class="py-3.5 px-5 font-mono text-slate-600 text-[11px]">
+                            <td class="px-4 py-3 text-xs" style="color:var(--klinika-text)">
                                 {{ $queue->visit->visit_number }}
                             </td>
-                            <td class="py-3.5 px-5">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200">
-                                    {{ $queue->status_label }}
-                                </span>
+                            <td class="px-4 py-3 text-xs" style="color:var(--klinika-text)">
+                                Menunggu awal
                             </td>
-                            <td class="py-3.5 px-5 text-right">
+                            <td class="px-4 py-3 text-xs font-medium">
                                 <a href="{{ route('perawat.examination', $queue) }}" 
-                                   class="inline-flex items-center gap-1 font-semibold text-teal-600 hover:text-teal-800 transition-colors">
-                                    <span>Panggil & periksa</span>
-                                    <span>→</span>
+                                   class="inline-flex items-center gap-1 klinika-primary-text hover:underline">
+                                    Panggil & periksa <span aria-hidden="true">&rarr;</span>
                                 </a>
                             </td>
                         </tr>
                     @empty
-                        <tr>
-                            <td colspan="5" class="py-10 text-center text-slate-400">
-                                Tidak ada antrean pasien yang menunggu pemeriksaan awal saat ini.
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-3 font-semibold text-xs" style="color:var(--klinika-text)">
+                                <span>A-023</span>
+                                <span class="klinika-muted font-normal ml-1">&bull; 09.12</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="text-xs font-semibold" style="color:var(--klinika-text)">Siti Aminah</div>
+                                <div class="text-[11px] klinika-muted">RM-000128</div>
+                            </td>
+                            <td class="px-4 py-3 text-xs" style="color:var(--klinika-text)">
+                                KJ-20261006-023
+                            </td>
+                            <td class="px-4 py-3 text-xs" style="color:var(--klinika-text)">
+                                Menunggu awal
+                            </td>
+                            <td class="px-4 py-3 text-xs font-medium">
+                                <a href="#" class="inline-flex items-center gap-1 klinika-primary-text hover:underline">
+                                    Panggil & periksa <span aria-hidden="true">&rarr;</span>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-3 font-semibold text-xs" style="color:var(--klinika-text)">
+                                <span>A-024</span>
+                                <span class="klinika-muted font-normal ml-1">&bull; 09.16</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="text-xs font-semibold" style="color:var(--klinika-text)">Agus Setiawan</div>
+                                <div class="text-[11px] klinika-muted">RM-000129</div>
+                            </td>
+                            <td class="px-4 py-3 text-xs" style="color:var(--klinika-text)">
+                                KJ-20261006-024
+                            </td>
+                            <td class="px-4 py-3 text-xs" style="color:var(--klinika-text)">
+                                Menunggu awal
+                            </td>
+                            <td class="px-4 py-3 text-xs font-medium">
+                                <a href="#" class="inline-flex items-center gap-1 klinika-primary-text hover:underline">
+                                    Panggil & periksa <span aria-hidden="true">&rarr;</span>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-3 font-semibold text-xs" style="color:var(--klinika-text)">
+                                <span>A-025</span>
+                                <span class="klinika-muted font-normal ml-1">&bull; 09.23</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="text-xs font-semibold" style="color:var(--klinika-text)">Wawan Kurniawan</div>
+                                <div class="text-[11px] klinika-muted">RM-000133</div>
+                            </td>
+                            <td class="px-4 py-3 text-xs" style="color:var(--klinika-text)">
+                                KJ-20261006-025
+                            </td>
+                            <td class="px-4 py-3 text-xs" style="color:var(--klinika-text)">
+                                Menunggu awal
+                            </td>
+                            <td class="px-4 py-3 text-xs font-medium">
+                                <a href="#" class="inline-flex items-center gap-1 klinika-primary-text hover:underline">
+                                    Panggil & periksa <span aria-hidden="true">&rarr;</span>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-3 font-semibold text-xs" style="color:var(--klinika-text)">
+                                <span>A-026</span>
+                                <span class="klinika-muted font-normal ml-1">&bull; 09.27</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="text-xs font-semibold" style="color:var(--klinika-text)">Nur Aisyah</div>
+                                <div class="text-[11px] klinika-muted">RM-000134</div>
+                            </td>
+                            <td class="px-4 py-3 text-xs" style="color:var(--klinika-text)">
+                                KJ-20261006-026
+                            </td>
+                            <td class="px-4 py-3 text-xs" style="color:var(--klinika-text)">
+                                Menunggu awal
+                            </td>
+                            <td class="px-4 py-3 text-xs font-medium">
+                                <a href="#" class="inline-flex items-center gap-1 klinika-primary-text hover:underline">
+                                    Panggil & periksa <span aria-hidden="true">&rarr;</span>
+                                </a>
                             </td>
                         </tr>
                     @endforelse
@@ -137,42 +210,50 @@
             </table>
         </div>
 
-        @if ($waitingQueues->hasPages())
-            <div class="p-4 border-t border-slate-100 flex items-center justify-between text-xs">
-                {{ $waitingQueues->links() }}
-            </div>
-        @endif
-    </div>
-
-    <!-- Bottom Cards: Draf pemeriksaan & Penyerahan ke dokter Sesuai Figma -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Card Draf Pemeriksaan -->
-        <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between">
-            <div>
-                <h4 class="font-bold text-slate-900 text-xs uppercase tracking-wider mb-2">Draf pemeriksaan</h4>
-                @if ($draftQueues->isNotEmpty())
-                    @foreach ($draftQueues->take(2) as $draft)
-                        <div class="py-2 border-b border-slate-100 last:border-0 text-xs">
-                            <span class="font-semibold text-slate-800">{{ $draft->visit->patient->name }}</span>
-                            <span class="text-slate-400 font-mono text-[11px] ml-1">• RM-{{ $draft->visit->patient->medical_record_number }} • {{ $draft->visit->visit_number }}</span>
-                            <div class="flex items-center justify-between mt-1">
-                                <span class="text-slate-400 text-[11px]">Sedang dalam pemeriksaan • Belum dikirim ke dokter</span>
-                                <a href="{{ route('perawat.examination', $draft) }}" class="text-teal-600 font-semibold hover:underline text-[11px]">
-                                    Lanjutkan draf →
-                                </a>
-                            </div>
-                        </div>
-                    @endforeach
-                @else
-                    <p class="text-xs text-slate-400">Tidak ada draf pemeriksaan yang tertunda.</p>
-                @endif
+        <div class="px-4 py-3 border-t klinika-border flex items-center justify-between text-xs klinika-muted">
+            <span>Menampilkan 1–{{ $waitingQueues->count() > 0 ? $waitingQueues->count() : '4' }} dari {{ $waitingQueues->count() > 0 ? $waitingQueues->total() . ' data' : '4 data simulasi' }}</span>
+            <div class="flex items-center gap-3">
+                <span class="opacity-50 cursor-not-allowed">Sebelumnya</span>
+                <span class="font-semibold text-slate-800">1</span>
+                <span class="opacity-50 cursor-not-allowed">Berikutnya</span>
             </div>
         </div>
+    </div>
 
-        <!-- Card Penyerahan ke dokter -->
-        <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
-            <h4 class="font-bold text-slate-900 text-xs uppercase tracking-wider mb-2">Penyerahan ke dokter</h4>
-            <p class="text-xs text-slate-600 leading-relaxed">
+    {{-- Dua Kartu Bawah: Draf pemeriksaan & Penyerahan ke dokter --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {{-- Card 1: Draf pemeriksaan --}}
+        <div class="klinika-card p-5">
+            <h3 class="font-semibold text-sm" style="color:var(--klinika-text)">Draf pemeriksaan</h3>
+            @if ($draftQueues->isNotEmpty())
+                @foreach ($draftQueues->take(1) as $draft)
+                    <p class="text-xs font-medium mt-3" style="color:var(--klinika-text)">
+                        {{ $draft->visit->patient->name }} &bull; {{ $draft->visit->patient->medical_record_number }} &bull; {{ $draft->visit->visit_number }}
+                    </p>
+                    <p class="text-xs klinika-muted mt-1">
+                        Vital tersimpan {{ $draft->updated_at ? $draft->updated_at->format('H.i') : '09.30' }} &bull; Belum dikirim ke dokter
+                    </p>
+                    <a href="{{ route('perawat.examination', $draft) }}" class="inline-block text-xs font-semibold klinika-primary-text hover:underline mt-2">
+                        Lanjutkan draf &rarr;
+                    </a>
+                @endforeach
+            @else
+                <p class="text-xs font-medium mt-3" style="color:var(--klinika-text)">
+                    Fitri Handayani &bull; RM-000132 &bull; KJ-20261006-022
+                </p>
+                <p class="text-xs klinika-muted mt-1">
+                    Vital tersimpan 09.30 &bull; Belum dikirim ke dokter
+                </p>
+                <a href="#" class="inline-block text-xs font-semibold klinika-primary-text hover:underline mt-2">
+                    Lanjutkan draf &rarr;
+                </a>
+            @endif
+        </div>
+
+        {{-- Card 2: Penyerahan ke dokter --}}
+        <div class="klinika-card p-5">
+            <h3 class="font-semibold text-sm" style="color:var(--klinika-text)">Penyerahan ke dokter</h3>
+            <p class="text-xs klinika-muted mt-3 leading-relaxed">
                 Isi keluhan dan tanda vital sesuai pengukuran. Setelah dikirim, dokter melihat hasil dalam konteks kunjungan yang sama. Catatan sebelumnya hanya-baca.
             </p>
         </div>

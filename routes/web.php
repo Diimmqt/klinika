@@ -28,7 +28,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('patients', PatientController::class);
+    Route::get('/patients/{patient}/visits/create', [VisitController::class, 'createForPatient'])->name('patients.visits.create');
+
+    Route::post('/visits/confirm', [VisitController::class, 'confirm'])->name('visits.confirm');
     Route::resource('visits', VisitController::class);
+    Route::get('/kunjungan', [VisitController::class, 'index']);
 
     Route::get('queues', [QueueController::class, 'index'])->name('queues.index');
     Route::patch('queues/{queue}/status', [QueueController::class, 'updateStatus'])->name('queues.update-status');
