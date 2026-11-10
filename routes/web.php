@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SuperAdminController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\CashierController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\NurseController;
@@ -54,6 +55,18 @@ Route::middleware('auth')->group(function () {
         Route::get('examination/{queue}', [DoctorController::class, 'examination'])->name('examination');
         Route::post('examination/{queue}', [DoctorController::class, 'storeExamination'])->name('examination.store');
         Route::get('patient/{patient}/rme', [DoctorController::class, 'rme'])->name('rme');
+    });
+
+    Route::prefix('kasir')->name('kasir.')->group(function () {
+        Route::get('/', [CashierController::class, 'index'])->name('index');
+        Route::get('/invoices', [CashierController::class, 'invoices'])->name('invoices');
+        Route::get('/penyusunan-tagihan', [CashierController::class, 'createBilling'])->name('billing.create');
+        Route::post('/penyusunan-tagihan', [CashierController::class, 'storeBilling'])->name('billing.store');
+        Route::get('/invoices/{invoice}', [CashierController::class, 'show'])->name('show');
+        Route::get('/invoices/{invoice}/payment', [CashierController::class, 'payment'])->name('payment');
+        Route::get('/invoices/{invoice}/confirm', [CashierController::class, 'confirm'])->name('confirm');
+        Route::post('/invoices/{invoice}/payment', [CashierController::class, 'processPayment'])->name('process-payment');
+        Route::get('/invoices/{invoice}/receipt', [CashierController::class, 'receipt'])->name('receipt');
     });
 
     Route::prefix('admin')->name('admin.')->middleware('role:super_admin')->group(function () {
