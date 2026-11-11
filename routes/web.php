@@ -67,6 +67,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/invoices/{invoice}/confirm', [CashierController::class, 'confirm'])->name('confirm');
         Route::post('/invoices/{invoice}/payment', [CashierController::class, 'processPayment'])->name('process-payment');
         Route::get('/invoices/{invoice}/receipt', [CashierController::class, 'receipt'])->name('receipt');
+        Route::get('/rekap-kas', [CashierController::class, 'rekapKas'])->name('rekap');
+        Route::post('/rekap-kas/tutup-shift', [CashierController::class, 'tutupShift'])->name('tutup-shift');
     });
 
     Route::prefix('admin')->name('admin.')->middleware('role:super_admin')->group(function () {

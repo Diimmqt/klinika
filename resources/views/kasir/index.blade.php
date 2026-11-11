@@ -157,7 +157,7 @@
                 <p style="color:var(--klinika-text)">Modal awal Rp500.000 &bull; Kas tunai Rp4.340.000</p>
                 <p class="klinika-muted">Penutupan shift memerlukan rekonsiliasi.</p>
                 <div class="pt-1">
-                    <a href="#" class="inline-block font-semibold klinika-primary-text hover:underline">
+                    <a href="{{ route('kasir.rekap') }}" class="inline-block font-semibold klinika-primary-text hover:underline">
                         Lihat rekap kas &rarr;
                     </a>
                 </div>

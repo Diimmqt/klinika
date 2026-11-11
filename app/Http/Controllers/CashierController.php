@@ -395,4 +395,76 @@ class CashierController extends Controller
             ->route('kasir.invoices')
             ->with('success', 'Tagihan untuk Deni Saputra (KJ-SIM-20261006-041) berhasil disusun dan diterbitkan otomatis.');
     }
+
+    /**
+     * Rekap Kas - pantau penerimaan & rekonsiliasi shift.
+     */
+    public function rekapKas(Request $request): View
+    {
+        abort_unless(auth()->user()?->hasAnyRole(['kasir', 'super_admin']), 403);
+
+        $tanggal = $request->input('tanggal', '6 Oktober 2026');
+        $shift   = $request->input('shift', 'Pagi • 08.00–14.00');
+        $kasir   = $request->input('kasir', auth()->user()?->name ?? 'Budi Hartono');
+
+        $summary = [
+            'total_penerimaan'   => 'Rp6.840.000',
+            'total_transaksi'    => 46,
+            'penerimaan_tunai'   => 'Rp3.840.000',
+            'tunai_transaksi'    => 26,
+            'tunai_pct'          => '56,1%',
+            'penerimaan_nontunai'=> 'Rp3.000.000',
+            'nontunai_desc'      => 'QRIS dan transfer • 20 transaksi',
+            'saldo_diharapkan'   => 'Rp4.340.000',
+            'saldo_desc'         => 'Modal awal + penerimaan tunai',
+        ];
+
+        $metodePembayaran = [
+            ['metode' => 'Tunai',         'transaksi' => 26, 'penerimaan' => 'Rp3.840.000', 'kontribusi' => '56,1%'],
+            ['metode' => 'QRIS',          'transaksi' => 16, 'penerimaan' => 'Rp2.100.000', 'kontribusi' => '30,7%'],
+            ['metode' => 'Transfer bank', 'transaksi' => 4,  'penerimaan' => 'Rp900.000',   'kontribusi' => '13,2%'],
+            ['metode' => 'Total',         'transaksi' => 46, 'penerimaan' => 'Rp6.840.000', 'kontribusi' => '100%'],
+        ];
+
+        $pergerakanKas = [
+            'modal_awal'    => 'Rp500.000',
+            'penerimaan'    => '+Rp3.840.000',
+            'pengeluaran'   => 'Rp0',
+            'saldo_akhir'   => 'Rp4.340.000',
+            'catatan'       => 'Penerimaan QRIS dan transfer tidak menambah saldo kas fisik.',
+        ];
+
+        $rincianTransaksi = [
+            ['waktu' => '13.42', 'invoice' => 'INV-20261006-046', 'pasien' => 'Dewi Lestari',  'metode' => 'Tunai',         'penerimaan' => 'Rp260.000', 'status' => 'Berhasil'],
+            ['waktu' => '13.35', 'invoice' => 'INV-20261006-045', 'pasien' => 'Ahmad Fauzi',   'metode' => 'QRIS',          'penerimaan' => 'Rp150.000', 'status' => 'Berhasil'],
+            ['waktu' => '13.21', 'invoice' => 'INV-20261006-044', 'pasien' => 'Rina Wulandari','metode' => 'Tunai',         'penerimaan' => 'Rp125.000', 'status' => 'Berhasil'],
+            ['waktu' => '13.08', 'invoice' => 'INV-20261006-043', 'pasien' => 'Agus Setiawan', 'metode' => 'Transfer bank', 'penerimaan' => 'Rp180.000', 'status' => 'Berhasil'],
+            ['waktu' => '12.58', 'invoice' => 'INV-20261006-042', 'pasien' => 'Maya Sari',     'metode' => 'QRIS',          'penerimaan' => 'Rp145.000', 'status' => 'Berhasil'],
+        ];
+
+        $riwayatShift = [
+            ['tanggal' => '5 Okt 2026', 'shift' => 'Siang', 'kasir' => 'Siti Rahmia',  'saldo_diharapkan' => 'Rp2.750.000', 'kas_fisik' => 'Rp2.750.000', 'selisih' => 'Rp0', 'ditutup' => '20.04 WIB'],
+            ['tanggal' => '5 Okt 2026', 'shift' => 'Pagi',  'kasir' => 'Budi Hartono', 'saldo_diharapkan' => 'Rp4.120.000', 'kas_fisik' => 'Rp4.120.000', 'selisih' => 'Rp0', 'ditutup' => '14.02 WIB'],
+        ];
+
+        return view('kasir.rekap', compact(
+            'tanggal', 'shift', 'kasir',
+            'summary', 'metodePembayaran', 'pergerakanKas',
+            'rincianTransaksi', 'riwayatShift'
+        ));
+    }
+
+    /**
+     * Tutup Shift - simpan rekonsiliasi kas.
+     */
+    public function tutupShift(Request $request): RedirectResponse
+    {
+        abort_unless(auth()->user()?->hasAnyRole(['kasir', 'super_admin']), 403);
+
+        $request->validate(['kas_fisik' => 'required|numeric|min:0']);
+
+        return redirect()
+            ->route('kasir.rekap')
+            ->with('success', 'Shift berhasil ditutup. Rekonsiliasi kas tersimpan.');
+    }
 }
