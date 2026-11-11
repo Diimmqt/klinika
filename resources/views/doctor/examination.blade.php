@@ -1,21 +1,22 @@
 @extends('layouts.app')
 
-@section('title', 'Pemeriksaan Medis - ' . $queue->queue_code . ' (' . $patient->name . ')')
-@section('page-title', 'Pemeriksaan Medis Dokter')
+@section('title', 'Pemeriksaan medis - ' . $queue->queue_code . ' (' . $patient->name . ')')
+@section('page-title', 'Pemeriksaan medis')
+
+@section('breadcrumb')
+    <a href="{{ route('dashboard') }}" class="hover:underline klinika-primary-text">Beranda</a>
+    <span class="mx-1">/</span>
+    <a href="{{ route('dokter.index') }}" class="hover:underline klinika-primary-text">Pelayanan medis</a>
+    <span class="mx-1">/</span>
+    <a href="{{ route('dokter.queue') }}" class="hover:underline klinika-primary-text">Antrean</a>
+    <span class="mx-1">/</span>
+    <span class="font-mono">{{ $queue->queue_code }}</span>
+    <span class="mx-1">/</span>
+    <span>Pemeriksaan</span>
+@endsection
 
 @section('content')
 <div class="max-w-7xl mx-auto space-y-6">
-
-    <!-- Breadcrumb -->
-    <nav class="flex items-center gap-2 text-xs text-slate-500">
-        <a href="{{ route('dokter.index') }}" class="hover:text-teal-600">Beranda Dokter</a>
-        <span>/</span>
-        <a href="{{ route('dokter.queue') }}" class="hover:text-teal-600">Antrean</a>
-        <span>/</span>
-        <span class="font-mono font-semibold text-slate-700">{{ $queue->queue_code }}</span>
-        <span>/</span>
-        <span class="text-slate-900 font-semibold">Pemeriksaan Medis & RME</span>
-    </nav>
 
     <!-- Header Identitas Pasien & Encounter Aktif -->
     <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
