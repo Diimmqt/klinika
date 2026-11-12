@@ -4,13 +4,17 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
 
 class SuperAdminController extends Controller
 {
-    public function index(): View
+    public function index(): View|RedirectResponse
     {
+        if (auth()->user()?->hasRole('admin_klinik') && !auth()->user()?->hasRole('super_admin')) {
+            return redirect()->route('admin.operasional');
+        }
         $stats = [
             'klinik'      => 3,  // ponytail: hardcoded sim data, replace with Klinik::count() when model exists
             'users'       => User::where('is_active', true)->count(),

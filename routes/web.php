@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminKlinikController;
 use App\Http\Controllers\Admin\AuditController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
@@ -71,8 +72,13 @@ Route::middleware('auth')->group(function () {
         Route::post('/rekap-kas/tutup-shift', [CashierController::class, 'tutupShift'])->name('tutup-shift');
     });
 
-    Route::prefix('admin')->name('admin.')->middleware('role:super_admin')->group(function () {
+    Route::prefix('admin')->name('admin.')->middleware('role:super_admin|admin_klinik')->group(function () {
         Route::get('/', [SuperAdminController::class, 'index'])->name('dashboard');
+        Route::get('/operasional', [AdminKlinikController::class, 'operasional'])->name('operasional');
+        Route::get('/master/jadwal-dokter', [AdminKlinikController::class, 'jadwalDokter'])->name('master.jadwal-dokter');
+        Route::post('/master/jadwal-dokter', [AdminKlinikController::class, 'updateJadwalDokter'])->name('master.jadwal-dokter.update');
+        Route::get('/master/poli', [AdminKlinikController::class, 'masterPoli'])->name('master.poli');
+        Route::post('/master/poli', [AdminKlinikController::class, 'updateMasterPoli'])->name('master.poli.update');
         Route::get('users/{user}/deactivate', [UserController::class, 'deactivate'])->name('users.deactivate');
         Route::get('users/{user}/reset-password', [UserController::class, 'showResetPassword'])->name('users.reset-password');
         Route::post('users/{user}/reset-password', [UserController::class, 'sendResetPassword'])->name('users.send-reset-password');

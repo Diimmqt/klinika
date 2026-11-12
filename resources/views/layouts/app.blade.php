@@ -60,6 +60,61 @@
         </div>
 
         <nav class="flex-1 p-4 space-y-0.5 overflow-y-auto">
+            @role('admin_klinik')
+            <a href="{{ route('admin.operasional') }}"
+               class="flex items-center gap-2 px-3 py-2.5 rounded-md font-medium text-sm transition-colors {{ request()->routeIs('admin.operasional') ? 'klinika-nav-active' : 'klinika-nav-idle' }}">
+                @if(request()->routeIs('admin.operasional'))
+                    <span class="text-sm font-bold leading-none">›</span>
+                @endif
+                <span>Dashboard</span>
+            </a>
+
+            <a href="{{ route('patients.index') }}"
+               class="flex items-center gap-2 px-3 py-2.5 rounded-md font-medium text-sm transition-colors {{ request()->routeIs('patients.*') ? 'klinika-nav-active' : 'klinika-nav-idle' }}">
+                @if(request()->routeIs('patients.*'))
+                    <span class="text-sm font-bold leading-none">›</span>
+                @endif
+                <span>Data pasien</span>
+            </a>
+
+            <a href="{{ route('visits.index') }}"
+               class="flex items-center gap-2 px-3 py-2.5 rounded-md font-medium text-sm transition-colors {{ request()->routeIs('visits.*') ? 'klinika-nav-active' : 'klinika-nav-idle' }}">
+                @if(request()->routeIs('visits.*'))
+                    <span class="text-sm font-bold leading-none">›</span>
+                @endif
+                <span>Kunjungan</span>
+            </a>
+
+            <a href="{{ route('queues.index') }}"
+               class="flex items-center gap-2 px-3 py-2.5 rounded-md font-medium text-sm transition-colors {{ request()->routeIs('queues.*') ? 'klinika-nav-active' : 'klinika-nav-idle' }}">
+                @if(request()->routeIs('queues.*'))
+                    <span class="text-sm font-bold leading-none">›</span>
+                @endif
+                <span>Antrean</span>
+            </a>
+
+            <a href="{{ route('admin.master.poli') }}"
+               class="flex items-center gap-2 px-3 py-2.5 rounded-md font-medium text-sm transition-colors {{ request()->routeIs('admin.master.*') ? 'klinika-nav-active' : 'klinika-nav-idle' }}">
+                @if(request()->routeIs('admin.master.*'))
+                    <span class="text-sm font-bold leading-none">›</span>
+                @endif
+                <span>Master data</span>
+            </a>
+
+            <a href="#"
+               class="flex items-center gap-2 px-3 py-2.5 rounded-md font-medium text-sm transition-colors klinika-nav-idle">
+                <span>Laporan</span>
+            </a>
+
+            <a href="{{ route('admin.users.index') }}"
+               class="flex items-center gap-2 px-3 py-2.5 rounded-md font-medium text-sm transition-colors {{ request()->routeIs('admin.users.*') ? 'klinika-nav-active' : 'klinika-nav-idle' }}">
+                @if(request()->routeIs('admin.users.*'))
+                    <span class="text-sm font-bold leading-none">›</span>
+                @endif
+                <span>Pengguna klinik</span>
+            </a>
+            @endrole
+
             @role('super_admin')
             <a href="{{ route('admin.dashboard') }}"
                class="flex items-center gap-3 px-3 py-2.5 rounded-md font-medium text-sm transition-colors {{ request()->routeIs('admin.dashboard') ? 'klinika-nav-active' : 'klinika-nav-idle' }}">
@@ -233,7 +288,7 @@
         </nav>
 
         <div class="p-4 border-t klinika-border space-y-3" style="background-color:#F4F7F8">
-            <div class="text-xs klinika-muted font-medium">AKSES: {{ auth()->user()?->getRoleNames()->first() ?? 'Pengguna' }}</div>
+            <div class="text-xs klinika-muted font-medium">AKSES: {{ auth()->user()?->hasRole('admin_klinik') ? 'Admin Klinik' : (auth()->user()?->hasRole('super_admin') ? 'Super Admin' : (auth()->user()?->getRoleNames()->first() ?? 'Pengguna')) }}</div>
             <a href="#" class="block text-xs klinika-muted hover:opacity-80">Bantuan & panduan</a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
@@ -262,7 +317,7 @@
                 <div class="flex items-center gap-2 cursor-pointer">
                     <div class="text-right hidden sm:block">
                         <div class="text-xs font-semibold" style="color:var(--klinika-text)">{{ auth()->user()?->name ?? 'Pengguna' }}</div>
-                        <div class="text-[11px] klinika-muted">{{ auth()->user()?->getRoleNames()->first() ?? 'Pengguna' }}</div>
+                        <div class="text-[11px] klinika-muted">{{ auth()->user()?->hasRole('admin_klinik') ? 'Admin Klinik' : (auth()->user()?->hasRole('super_admin') ? 'Super Admin' : (auth()->user()?->getRoleNames()->first() ?? 'Pengguna')) }}</div>
                     </div>
                     <svg class="w-3 h-3 klinika-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
