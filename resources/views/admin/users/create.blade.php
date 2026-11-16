@@ -28,7 +28,7 @@
         <div class="flex flex-col lg:flex-row gap-5 items-start">
 
             {{-- LEFT: Main form --}}
-            <div class="flex-1 space-y-4 min-w-0">
+            <div class="w-full lg:flex-1 space-y-4 min-w-0">
 
                 {{-- Identitas pengguna --}}
                 <div class="klinika-card p-6 space-y-4">
@@ -47,6 +47,9 @@
                                    class="w-full px-3.5 py-2.5 rounded-md border text-sm outline-none transition-colors focus:ring-2"
                                    style="border-color:var(--klinika-border);background:#F4F7F8;color:var(--klinika-text)"
                                    onfocus="this.style.borderColor='var(--klinika-primary)'" onblur="this.style.borderColor='var(--klinika-border)'">
+                            @error('name')
+                                <p class="text-[11px] text-rose-600 mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <label for="email" class="block text-xs font-semibold mb-1.5" style="color:var(--klinika-text)">
@@ -57,7 +60,11 @@
                                    class="w-full px-3.5 py-2.5 rounded-md border text-sm outline-none transition-colors"
                                    style="border-color:var(--klinika-border);background:#F4F7F8;color:var(--klinika-text)"
                                    onfocus="this.style.borderColor='var(--klinika-primary)'" onblur="this.style.borderColor='var(--klinika-border)'">
-                            <p class="text-[11px] klinika-muted mt-1">Undangan dikirim ke alamat ini.</p>
+                            @error('email')
+                                <p class="text-[11px] text-rose-600 mt-1">{{ $message }}</p>
+                            @else
+                                <p class="text-[11px] klinika-muted mt-1">Undangan dikirim ke alamat ini.</p>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -75,9 +82,9 @@
                             <select id="klinik" name="klinik_id"
                                     class="w-full px-3.5 py-2.5 rounded-md border text-sm appearance-none outline-none pr-9"
                                     style="border-color:var(--klinika-border);background:#F4F7F8;color:var(--klinika-text)">
-                                <option value="KSS-01">Klinik Sehat Sentosa • Bandung (KSS-01)</option>
-                                <option value="KBS-02">Bina Sehat • Cimahi (KBS-02)</option>
-                                <option value="KMU-03">Medika Utama • Garut (KMU-03)</option>
+                                <option value="KSS-01" @selected(old('klinik_id', 'KSS-01') === 'KSS-01')>Klinik Sehat Sentosa • Bandung (KSS-01)</option>
+                                <option value="KBS-02" @selected(old('klinik_id') === 'KBS-02')>Bina Sehat • Cimahi (KBS-02)</option>
+                                <option value="KMU-03" @selected(old('klinik_id') === 'KMU-03')>Medika Utama • Garut (KMU-03)</option>
                             </select>
                             <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none klinika-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -93,7 +100,7 @@
                                 Role <span class="text-rose-500">*</span>
                             </label>
                             <div class="relative">
-                                <select id="role_select" name="roles[]"
+                                <select id="role_select" name="roles[]" required
                                         class="w-full px-3.5 py-2.5 rounded-md border text-sm appearance-none outline-none pr-9"
                                         style="border-color:var(--klinika-border);background:#F4F7F8;color:var(--klinika-text)"
                                         onchange="updateRoleSummary(this.value)">
@@ -108,6 +115,9 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                 </svg>
                             </div>
+                            @error('roles')
+                                <p class="text-[11px] text-rose-600 mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <label class="block text-xs font-semibold mb-1.5" style="color:var(--klinika-text)">Status awal</label>
@@ -132,7 +142,8 @@
 
                     {{-- Send invitation checkbox --}}
                     <label class="flex items-center gap-2.5 cursor-pointer select-none">
-                        <input type="checkbox" id="send_invitation" name="send_invitation" value="1" checked
+                        <input type="checkbox" id="send_invitation" name="send_invitation" value="1"
+                               {{ old('send_invitation', $errors->any() ? false : true) ? 'checked' : '' }}
                                class="w-4 h-4 rounded" style="accent-color:var(--klinika-primary)">
                         <span class="text-sm" style="color:var(--klinika-text)">Kirim undangan aktivasi melalui email setelah akun dibuat</span>
                     </label>
@@ -250,21 +261,26 @@
 @push('scripts')
 <script>
 const roleSummaries = {
-    'super_admin':   'Akses penuh ke seluruh sistem termasuk manajemen role dan klinik.',
-    'Pendaftaran':   'Pasien, kunjungan, dan antrean di KSS-01. Tanpa isi SOAP, resep, pembayaran, akun, atau manajemen role.',
-    'Dokter':        'Pemeriksaan, SOAP, dan resep di KSS-01. Tanpa manajemen akun atau pembayaran.',
-    'Kasir':         'Pembayaran dan kwitansi di KSS-01. Tanpa akses rekam medis atau manajemen akun.',
-    'Farmasi':       'Pengelolaan obat dan dispensing di KSS-01. Tanpa akses SOAP atau pembayaran.',
-    'Perawat':       'Asesmen awal dan pemeriksaan vital di KSS-01. Tanpa resep atau pembayaran.',
+    'super_admin':  'Akses penuh ke seluruh sistem termasuk manajemen pengguna, role, dan klinik.',
+    'super-admin':  'Akses penuh ke seluruh sistem termasuk manajemen pengguna, role, dan klinik.',
+    'admin_klinik': 'Pengelolaan operasional klinik, jadwal poli, dan pengguna tingkat klinik.',
+    'pendaftaran':  'Pasien, kunjungan, dan antrean di KSS-01. Tanpa isi SOAP, resep, pembayaran, akun, atau manajemen role.',
+    'dokter':       'Pemeriksaan, SOAP, diagnosis, tindakan, dan resep di KSS-01. Tanpa manajemen akun atau pembayaran.',
+    'perawat':      'Asesmen awal dan pemeriksaan vital di KSS-01. Tanpa resep atau pembayaran.',
+    'apoteker':     'Pengelolaan obat, stok farmasi, dan dispensing resep di KSS-01. Tanpa akses SOAP atau pembayaran.',
+    'farmasi':      'Pengelolaan obat dan dispensing di KSS-01. Tanpa akses SOAP atau pembayaran.',
+    'kasir':        'Pembayaran dan kwitansi di KSS-01. Tanpa akses rekam medis atau manajemen akun.',
+    'manajemen':    'Akses read-only untuk laporan klinik, statistik kunjungan, transaksi, farmasi, dan pemantauan operasional.',
 };
 
 function updateRoleSummary(role) {
     const box  = document.getElementById('role-summary-box');
     const name = document.getElementById('role-summary-name');
     const desc = document.getElementById('role-summary-desc');
-    if (role && roleSummaries[role]) {
+    const key  = (role || '').toLowerCase();
+    if (key && roleSummaries[key]) {
         name.textContent = role;
-        desc.textContent = roleSummaries[role];
+        desc.textContent = roleSummaries[key];
         box.classList.remove('hidden');
     } else {
         box.classList.add('hidden');
