@@ -73,13 +73,14 @@ class UserController extends Controller
     {
         try {
             $user = DB::transaction(function () use ($request) {
-                // Undangan: admin tidak set password. Placeholder acak agar kolom NOT NULL
-                // terisi; login diblokir lewat is_active=false sampai aktivasi.
+                $password = $request->filled('password') ? $request->input('password') : Str::password(64);
+                $isActive = $request->filled('password') ? true : false;
+
                 $user = User::create([
                     'name' => $request->input('name'),
                     'email' => $request->input('email'),
-                    'password' => Str::password(64),
-                    'is_active' => false,
+                    'password' => $password,
+                    'is_active' => $isActive,
                 ]);
                 $user->syncRoles($request->input('roles', []));
 
@@ -89,9 +90,11 @@ class UserController extends Controller
             $sendInvitation = $request->boolean('send_invitation');
             $expires = now()->addDay()->timezone(config('app.timezone'))->format('d M Y H:i');
 
-            $message = $sendInvitation
-                ? "Akun '{$user->name}' dibuat. Undangan aktivasi siap dikirim; pengguna belum dapat login."
-                : "Akun '{$user->name}' dibuat dengan status menunggu aktivasi (undangan belum dikirim).";
+            $message = $user->is_active
+                ? "Akun '{$user->name}' berhasil dibuat dan langsung aktif."
+                : ($sendInvitation
+                    ? "Akun '{$user->name}' dibuat. Undangan aktivasi siap dikirim; pengguna belum dapat login."
+                    : "Akun '{$user->name}' dibuat dengan status menunggu aktivasi (undangan belum dikirim).");
 
             return redirect()
                 ->route('admin.users.create')
@@ -162,6 +165,15 @@ class UserController extends Controller
         $isSelf = $user->id === auth()->id();
 
         return view('admin.users.deactivate', compact('user', 'isLastSuperAdmin', 'isSelf'));
+    }
+
+    public function activate(User $user): RedirectResponse
+    {
+        $user->update(['is_active' => true]);
+
+        return redirect()
+            ->route('admin.users.index')
+            ->with('success', "User '{$user->name}' berhasil diaktifkan kembali.");
     }
 
     public function showResetPassword(User $user): View

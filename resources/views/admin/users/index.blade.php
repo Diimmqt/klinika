@@ -12,7 +12,7 @@
 @endsection
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-5">
 
     {{-- Page Header --}}
     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
@@ -23,11 +23,8 @@
             </p>
         </div>
         <a href="{{ route('admin.users.create') }}"
-           class="inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-white font-medium text-sm klinika-primary transition-colors shrink-0">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            <span>+ Tambah pengguna</span>
+           class="px-4 py-2.5 rounded-md text-white text-sm font-medium klinika-primary hover:opacity-90 transition-opacity shrink-0 text-center">
+            + Tambah pengguna
         </a>
     </div>
 
@@ -46,114 +43,109 @@
     <div class="p-4 rounded-lg border flex items-center justify-between" style="background:#FFF1F2;border-color:#FECDD3;color:#9F1239">
         <div class="flex items-center gap-2.5 text-xs font-medium">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
             <span>{{ session('error') }}</span>
         </div>
     </div>
     @endif
 
-    {{-- Stats Cards --}}
+    {{-- Stats Cards (4) --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {{-- Total Akun --}}
-        <div class="p-5 klinika-card">
-            <span class="text-xs font-medium klinika-muted">Total akun</span>
-            <div class="mt-2 text-3xl font-bold" style="color:var(--klinika-text)">{{ $stats['total'] }}</div>
+        <div class="klinika-card p-5">
+            <p class="text-xs klinika-muted font-medium">Total akun</p>
+            <p class="text-3xl font-bold mt-1.5" style="color:var(--klinika-text)">{{ $stats['total'] ?? 24 }}</p>
             <p class="text-xs klinika-muted mt-1">Klinik Sehat Sentosa • KSS-01</p>
         </div>
-
-        {{-- Aktif --}}
-        <div class="p-5 klinika-card">
-            <span class="text-xs font-medium klinika-muted">Aktif</span>
-            <div class="mt-2 text-3xl font-bold" style="color:var(--klinika-primary)">{{ $stats['active'] }}</div>
+        <div class="klinika-card p-5">
+            <p class="text-xs klinika-muted font-medium">Aktif</p>
+            <p class="text-3xl font-bold mt-1.5" style="color:var(--klinika-text)">{{ $stats['active'] ?? 22 }}</p>
             <p class="text-xs klinika-muted mt-1">Siap mengakses aplikasi</p>
         </div>
-
-        {{-- Nonaktif --}}
-        <div class="p-5 klinika-card">
-            <span class="text-xs font-medium klinika-muted">Nonaktif</span>
-            <div class="mt-2 text-3xl font-bold" style="color:var(--klinika-muted)">{{ $stats['inactive'] }}</div>
+        <div class="klinika-card p-5">
+            <p class="text-xs klinika-muted font-medium">Nonaktif</p>
+            <p class="text-3xl font-bold mt-1.5" style="color:var(--klinika-text)">{{ $stats['inactive'] ?? 2 }}</p>
             <p class="text-xs klinika-muted mt-1">Riwayat tetap tersimpan</p>
         </div>
-
-        {{-- Super Admin --}}
-        <div class="p-5 klinika-card">
-            <span class="text-xs font-medium klinika-muted">Super Admin</span>
-            <div class="mt-2 text-3xl font-bold" style="color:var(--klinika-text)">{{ $stats['super_admin'] }}</div>
+        <div class="klinika-card p-5">
+            <p class="text-xs klinika-muted font-medium">Super Admin</p>
+            <p class="text-3xl font-bold mt-1.5" style="color:var(--klinika-text)">{{ $stats['super_admin'] ?? 1 }}</p>
             <p class="text-xs klinika-muted mt-1">Akses penuh klinik ini</p>
         </div>
     </div>
 
     {{-- Main Card: Daftar Akun --}}
-    <div class="klinika-card overflow-hidden">
-        <div class="px-6 py-4 border-b klinika-border">
+    <div class="klinika-card p-6 space-y-4">
+        <div>
             <h3 class="font-bold text-base" style="color:var(--klinika-text)">Daftar akun</h3>
             <p class="text-xs klinika-muted mt-0.5">
                 Status Aktif/Nonaktif mengatur akses aplikasi tanpa menghapus riwayat klinis. Super Admin terakhir tidak dapat dinonaktifkan.
             </p>
         </div>
 
-        {{-- Filter Row (Nama/Username, Peran, Status) --}}
-        <form method="GET" action="{{ route('admin.users.index') }}" class="px-6 py-4 border-b klinika-border grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-                <label for="search" class="block text-xs font-semibold mb-1.5" style="color:var(--klinika-text)">Cari pengguna</label>
-                <input type="text" name="search" id="search" value="{{ $search }}"
-                       placeholder="Nama atau username"
-                       class="w-full px-3.5 py-2 rounded-md border text-sm outline-none transition-colors"
-                       style="border-color:var(--klinika-border);background:#F4F7F8;color:var(--klinika-text)"
-                       onfocus="this.style.borderColor='var(--klinika-primary)'" onblur="this.style.borderColor='var(--klinika-border)'">
-            </div>
+        {{-- Filter Row --}}
+        <form method="GET" action="{{ route('admin.users.index') }}">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                <div class="md:col-span-6">
+                    <label for="search" class="block text-xs font-semibold mb-1.5" style="color:var(--klinika-text)">Cari pengguna</label>
+                    <input type="text" name="search" id="search" value="{{ $search }}"
+                           placeholder="Nama atau username"
+                           class="w-full px-3.5 py-2.5 rounded-md border text-sm outline-none transition-colors"
+                           style="border-color:var(--klinika-border);background:#F4F7F8;color:var(--klinika-text)"
+                           onfocus="this.style.borderColor='var(--klinika-primary)'" onblur="this.style.borderColor='var(--klinika-border)'">
+                </div>
 
-            <div>
-                <label for="role" class="block text-xs font-semibold mb-1.5" style="color:var(--klinika-text)">Peran</label>
-                <select name="role" id="role" onchange="this.form.submit()"
-                        class="w-full px-3.5 py-2 rounded-md border text-sm outline-none transition-colors"
-                        style="border-color:var(--klinika-border);background:#F4F7F8;color:var(--klinika-text)"
-                        onfocus="this.style.borderColor='var(--klinika-primary)'" onblur="this.style.borderColor='var(--klinika-border)'">
-                    <option value="">Semua peran</option>
-                    @php
-                        $roleLabels = [
-                            'super_admin' => 'Super Admin',
-                            'admin_klinik' => 'Admin Klinik',
-                            'pendaftaran' => 'Pendaftaran',
-                            'dokter' => 'Dokter',
-                            'perawat' => 'Perawat',
-                            'kasir' => 'Kasir',
-                            'apoteker' => 'Apoteker',
-                            'manajemen' => 'Manajemen',
-                        ];
-                    @endphp
-                    @foreach ($roles as $r)
-                        <option value="{{ $r->name }}" {{ $role === $r->name ? 'selected' : '' }}>
-                            {{ $roleLabels[$r->name] ?? ucwords(str_replace('_', ' ', $r->name)) }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+                <div class="md:col-span-3">
+                    <label for="role" class="block text-xs font-semibold mb-1.5" style="color:var(--klinika-text)">Peran</label>
+                    <select name="role" id="role" onchange="this.form.submit()"
+                            class="w-full px-3.5 py-2.5 rounded-md border text-sm outline-none transition-colors"
+                            style="border-color:var(--klinika-border);background:#F4F7F8;color:var(--klinika-text)"
+                            onfocus="this.style.borderColor='var(--klinika-primary)'" onblur="this.style.borderColor='var(--klinika-border)'">
+                        <option value="">Semua peran</option>
+                        @php
+                            $roleLabels = [
+                                'super_admin'  => 'Super Admin',
+                                'admin_klinik' => 'Admin Klinik',
+                                'pendaftaran'  => 'Pendaftaran',
+                                'dokter'       => 'Dokter',
+                                'perawat'      => 'Perawat',
+                                'kasir'        => 'Kasir',
+                                'apoteker'     => 'Apoteker',
+                                'manajemen'    => 'Manajemen',
+                            ];
+                        @endphp
+                        @foreach ($roles as $r)
+                            <option value="{{ $r->name }}" {{ $role === $r->name ? 'selected' : '' }}>
+                                {{ $roleLabels[$r->name] ?? ucwords(str_replace('_', ' ', $r->name)) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div>
-                <label for="status" class="block text-xs font-semibold mb-1.5" style="color:var(--klinika-text)">Status</label>
-                <select name="status" id="status" onchange="this.form.submit()"
-                        class="w-full px-3.5 py-2 rounded-md border text-sm outline-none transition-colors"
-                        style="border-color:var(--klinika-border);background:#F4F7F8;color:var(--klinika-text)"
-                        onfocus="this.style.borderColor='var(--klinika-primary)'" onblur="this.style.borderColor='var(--klinika-border)'">
-                    <option value="">Semua status</option>
-                    <option value="active" {{ $status === 'active' ? 'selected' : '' }}>Aktif</option>
-                    <option value="inactive" {{ $status === 'inactive' ? 'selected' : '' }}>Nonaktif</option>
-                </select>
+                <div class="md:col-span-3">
+                    <label for="status" class="block text-xs font-semibold mb-1.5" style="color:var(--klinika-text)">Status</label>
+                    <select name="status" id="status" onchange="this.form.submit()"
+                            class="w-full px-3.5 py-2.5 rounded-md border text-sm outline-none transition-colors"
+                            style="border-color:var(--klinika-border);background:#F4F7F8;color:var(--klinika-text)"
+                            onfocus="this.style.borderColor='var(--klinika-primary)'" onblur="this.style.borderColor='var(--klinika-border)'">
+                        <option value="">Semua status</option>
+                        <option value="active" {{ $status === 'active' ? 'selected' : '' }}>Aktif</option>
+                        <option value="inactive" {{ $status === 'inactive' ? 'selected' : '' }}>Nonaktif</option>
+                    </select>
+                </div>
             </div>
         </form>
 
         {{-- Table --}}
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto border rounded-lg" style="border-color:var(--klinika-border)">
             <table class="w-full text-left border-collapse text-xs">
                 <thead>
                     <tr class="font-semibold klinika-muted border-b" style="background:#F4F7F8;border-color:var(--klinika-border)">
-                        <th class="py-3 px-6">Pengguna</th>
-                        <th class="py-3 px-6">Peran</th>
-                        <th class="py-3 px-6">Status akun</th>
-                        <th class="py-3 px-6">Login terakhir</th>
-                        <th class="py-3 px-6 text-right">Aksi</th>
+                        <th class="py-3 px-4 w-1/4">Pengguna</th>
+                        <th class="py-3 px-4 w-1/5">Peran</th>
+                        <th class="py-3 px-4 w-1/6">Status akun</th>
+                        <th class="py-3 px-4 w-1/5">Login terakhir</th>
+                        <th class="py-3 px-4">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y" style="border-color:var(--klinika-border)">
@@ -165,35 +157,33 @@
                         @endphp
                         <tr class="hover:bg-slate-50/60 transition-colors">
                             {{-- Pengguna --}}
-                            <td class="py-3.5 px-6">
-                                <a href="{{ route('admin.users.show', $u) }}" class="font-bold text-sm hover:underline" style="color:var(--klinika-text)">
+                            <td class="py-3.5 px-4 align-top">
+                                <a href="{{ route('admin.users.show', $u) }}" class="font-bold text-xs hover:underline" style="color:var(--klinika-text)">
                                     {{ $u->name }}
                                 </a>
-                                <span class="text-xs klinika-muted block mt-0.5">{{ $u->email }}</span>
+                                <span class="text-[11px] klinika-muted block mt-0.5">{{ $u->email }}</span>
                             </td>
 
                             {{-- Peran --}}
-                            <td class="py-3.5 px-6 text-sm" style="color:var(--klinika-text)">
+                            <td class="py-3.5 px-4 align-top" style="color:var(--klinika-text)">
                                 {{ $roleText }}
                             </td>
 
                             {{-- Status Akun --}}
-                            <td class="py-3.5 px-6">
+                            <td class="py-3.5 px-4 align-top">
                                 @if ($u->is_active)
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-semibold border"
-                                          style="background:#ECFDF5;color:#047857;border-color:#A7F3D0">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200">
                                         Aktif
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-semibold border"
-                                          style="background:#F1F5F9;color:#64748B;border-color:#CBD5E1">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold text-slate-600 bg-slate-100 border border-slate-200">
                                         Nonaktif
                                     </span>
                                 @endif
                             </td>
 
                             {{-- Login Terakhir --}}
-                            <td class="py-3.5 px-6 text-xs text-slate-700">
+                            <td class="py-3.5 px-4 align-top klinika-muted">
                                 @if($u->last_login_at)
                                     @if($u->last_login_at->isToday())
                                         Hari ini, {{ $u->last_login_at->format('H.i') }}
@@ -206,50 +196,52 @@
                             </td>
 
                             {{-- Aksi --}}
-                            <td class="py-3.5 px-6 text-right space-y-1">
-                                <div>
+                            <td class="py-3.5 px-4 align-top">
+                                <div class="flex flex-col items-start gap-1">
                                     <a href="{{ route('admin.users.show', $u) }}"
-                                       class="text-xs font-semibold hover:underline inline-flex items-center gap-1"
+                                       class="font-medium hover:underline inline-flex items-center gap-0.5"
                                        style="color:var(--klinika-primary)">
-                                        <span>Detail</span>
-                                        <span>&rarr;</span>
+                                        <span>Detail</span> <span>&rarr;</span>
                                     </a>
-                                </div>
-                                <div>
                                     <a href="{{ route('admin.users.edit', $u) }}"
-                                       class="text-xs font-medium text-slate-600 hover:underline">
+                                       class="font-medium hover:underline"
+                                       style="color:var(--klinika-primary)">
                                         Edit
                                     </a>
-                                </div>
-                                @if(!$isSuper && $u->id !== auth()->id())
-                                    @if($u->is_active)
-                                        <div>
+                                    @if(!$isSuper)
+                                        @if($u->is_active)
                                             <a href="{{ route('admin.users.deactivate', $u) }}"
-                                               class="text-xs font-medium text-rose-600 hover:underline">
+                                               class="font-medium hover:underline"
+                                               style="color:var(--klinika-primary)">
                                                 Nonaktifkan
                                             </a>
-                                        </div>
-                                    @else
-                                        <div>
-                                            <form method="POST" action="{{ route('admin.users.update', $u) }}" class="inline">
+                                        @else
+                                            <form method="POST" action="{{ route('admin.users.activate', $u) }}" class="inline">
                                                 @csrf
-                                                @method('PUT')
-                                                <input type="hidden" name="name" value="{{ $u->name }}">
-                                                <input type="hidden" name="email" value="{{ $u->email }}">
-                                                <input type="hidden" name="is_active" value="1">
-                                                <button type="submit" class="text-xs font-semibold text-emerald-600 hover:underline">
+                                                <button type="submit"
+                                                        class="font-medium hover:underline p-0 border-0 bg-transparent text-left cursor-pointer"
+                                                        style="color:var(--klinika-primary)">
                                                     Aktifkan
                                                 </button>
                                             </form>
-                                        </div>
+                                        @endif
                                     @endif
-                                @endif
+                                </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="py-12 text-center text-xs klinika-muted">
-                                Tidak ada akun yang sesuai dengan filter pencarian.
+                            <td colspan="5" class="py-14 px-6 text-center">
+                                <div class="max-w-md mx-auto">
+                                    <h4 class="font-bold text-sm mb-1.5" style="color:var(--klinika-text)">Belum ada pengguna</h4>
+                                    <p class="text-xs klinika-muted mb-4 leading-relaxed">
+                                        Belum ada akun staf yang dibuat untuk klinik ini. Tambahkan pengguna pertama untuk mulai mengakses aplikasi sesuai perannya.
+                                    </p>
+                                    <a href="{{ route('admin.users.create') }}"
+                                       class="inline-block px-4 py-2 rounded-lg text-white text-xs font-semibold klinika-primary hover:opacity-90 transition-opacity">
+                                        + Tambah pengguna
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
@@ -257,14 +249,14 @@
             </table>
         </div>
 
-        {{-- Pagination footer --}}
-        <div class="px-6 py-3.5 border-t klinika-border flex items-center justify-between flex-wrap gap-2 text-xs klinika-muted">
+        {{-- Table footer / Pagination --}}
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs klinika-muted pt-1">
             <div>
-                Menampilkan {{ $users->firstItem() ?? 0 }}–{{ $users->lastItem() ?? 0 }} dari {{ $users->total() }} akun • {{ $users->perPage() }} per halaman
+                Menampilkan {{ $users->firstItem() ?? 0 }}–{{ $users->lastItem() ?? 0 }} dari {{ $users->total() }} akun • 8 per halaman
             </div>
 
             @if ($users->hasPages())
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2">
                     @if ($users->onFirstPage())
                         <span class="text-slate-400 cursor-not-allowed">Sebelumnya</span>
                     @else
@@ -275,7 +267,7 @@
                         @if ($page == $users->currentPage())
                             <span class="px-2.5 py-1 rounded font-semibold text-white klinika-primary">{{ $page }}</span>
                         @else
-                            <a href="{{ $url }}" class="px-2 py-1 text-slate-600 hover:underline">{{ $page }}</a>
+                            <a href="{{ $url }}" class="px-2.5 py-1 rounded hover:bg-slate-100 text-slate-700">{{ $page }}</a>
                         @endif
                     @endforeach
 
@@ -287,13 +279,15 @@
                 </div>
             @else
                 <div class="flex items-center gap-2">
+                    <span class="text-slate-400 cursor-not-allowed">Sebelumnya</span>
                     <span class="px-2.5 py-1 rounded font-semibold text-white klinika-primary">1</span>
+                    <span class="text-slate-400 cursor-not-allowed">Berikutnya</span>
                 </div>
             @endif
         </div>
     </div>
 
-    {{-- Cyan Info Banner --}}
+    {{-- Teal Callout Box --}}
     <div class="rounded-lg border p-4" style="background:#EEF9F9;border-color:#B2DEDE">
         <div class="flex items-start gap-2.5">
             <svg class="w-4 h-4 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--klinika-primary)">
@@ -308,7 +302,7 @@
         </div>
     </div>
 
-    {{-- Page Footer Note --}}
+    {{-- Footer note --}}
     <div class="flex items-center gap-4 text-[11px] klinika-muted border-t pt-4" style="border-color:var(--klinika-border)">
         <span>Data simulasi • Bukan data pasien nyata</span>
         <span>|</span>

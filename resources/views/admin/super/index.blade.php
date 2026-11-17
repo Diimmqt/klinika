@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Administrasi Sistem')
-@section('page-title', 'Administrasi Sistem')
+@section('title', 'Dashboard Administrasi')
+@section('page-title', 'Dashboard administrasi')
 
 @section('breadcrumb')
-    <a href="{{ route('admin.dashboard') }}" class="hover:opacity-80" style="color:var(--klinika-primary)">Beranda</a>
-    <span>/</span>
-    <span style="color:var(--klinika-text)">Administrasi sistem</span>
+    <a href="{{ route('admin.dashboard') }}" class="hover:underline klinika-primary-text">Beranda</a>
+    <span class="mx-1">/</span>
+    <span>Administrasi sistem</span>
 @endsection
 
 @section('content')
@@ -15,116 +15,197 @@
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-            <h2 class="text-2xl font-bold tracking-tight" style="color:var(--klinika-text)">Administrasi sistem</h2>
-            <p class="text-sm klinika-muted mt-1">Pantau klinik, pengguna, dan keamanan lintas organisasi.</p>
+            <h2 class="text-xl font-bold" style="color:var(--klinika-text)">Dashboard administrasi</h2>
+            <p class="text-sm klinika-muted mt-0.5">Pantau akun, role, master data, dan aktivitas sistem Klinik Sehat Sentosa &bull; Bandung &bull; KSS-01 dalam satu tampilan.</p>
         </div>
-        <a href="{{ route('admin.users.create') }}"
-           class="inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-white font-medium text-sm klinika-primary transition-colors shrink-0">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-            <span>Kelola pengguna</span>
+        <a href="{{ route('admin.users.index') }}"
+           class="px-4 py-2 rounded-lg klinika-primary text-white text-sm font-semibold hover:opacity-90 transition-opacity shrink-0 text-center">
+            Kelola pengguna
         </a>
     </div>
 
-    {{-- Stats cards --}}
+    {{-- Top 4 Stat Cards --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="p-5 klinika-card">
-            <span class="text-xs font-medium klinika-muted">Klinik terdaftar</span>
-            <div class="mt-2 text-3xl font-bold" style="color:var(--klinika-text)">{{ $stats['klinik'] }}</div>
-            <p class="text-xs klinika-muted mt-1">{{ $stats['klinik'] }} klinik aktif</p>
+        <div class="klinika-card p-5">
+            <p class="text-xs klinika-muted font-medium">Total akun</p>
+            <p class="text-3xl font-bold mt-1" style="color:var(--klinika-primary)">{{ $stats['total_akun'] }}</p>
+            <p class="text-xs klinika-muted mt-1">Akun terdaftar</p>
         </div>
-        <div class="p-5 klinika-card">
-            <span class="text-xs font-medium klinika-muted">Pengguna aktif</span>
-            <div class="mt-2 text-3xl font-bold" style="color:var(--klinika-primary)">{{ $stats['users'] }}</div>
-            <p class="text-xs klinika-muted mt-1">{{ $stats['roles'] }} kelompok akses</p>
+        <div class="klinika-card p-5">
+            <p class="text-xs klinika-muted font-medium">Role aktif</p>
+            <p class="text-3xl font-bold mt-1" style="color:var(--klinika-primary)">{{ $stats['role_aktif'] }}</p>
+            <p class="text-xs klinika-muted mt-1">Role yang digunakan</p>
         </div>
-        <div class="p-5 klinika-card">
-            <span class="text-xs font-medium klinika-muted">Aktivitas hari ini</span>
-            <div class="mt-2 text-3xl font-bold" style="color:var(--klinika-text)">—</div>
-            <p class="text-xs klinika-muted mt-1">Semua perubahan tercatat</p>
+        <div class="klinika-card p-5">
+            <p class="text-xs klinika-muted font-medium">Aktivitas hari ini</p>
+            <p class="text-3xl font-bold mt-1" style="color:var(--klinika-primary)">{{ $stats['aktivitas_hari_ini'] }}</p>
+            <p class="text-xs klinika-muted mt-1">Log terbaru</p>
         </div>
-        <div class="p-5 klinika-card">
-            <span class="text-xs font-medium klinika-muted">Permintaan akses</span>
-            <div class="mt-2 text-3xl font-bold" style="color:var(--klinika-text)">{{ $stats['pending'] }}</div>
-            <p class="text-xs klinika-muted mt-1">Menunggu persetujuan</p>
+        <div class="klinika-card p-5">
+            <p class="text-xs klinika-muted font-medium">Permintaan akses</p>
+            <p class="text-3xl font-bold mt-1" style="color:#C4871A">{{ $stats['permintaan_akses'] }}</p>
+            <p class="text-xs klinika-muted mt-1">Menunggu tindak lanjut</p>
         </div>
     </div>
 
-    {{-- Warning banner --}}
-    @if($stats['pending'] > 0)
-    <div class="p-4 rounded-lg border flex items-start gap-3" style="background:#FFF8ED;border-color:#F5D9A8">
-        <svg class="w-5 h-5 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:#C4871A">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <div>
-            <p class="text-sm font-semibold" style="color:#96611C">{{ $stats['pending'] }} permintaan akses perlu ditinjau</p>
-            <p class="text-xs mt-0.5" style="color:#B07A30">Akun baru tidak mendapat izin klinis sebelum role dan klinik ditetapkan.</p>
-        </div>
-    </div>
-    @endif
+    {{-- 2x2 Grid Section --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-    {{-- Clinic table --}}
-    <div class="klinika-card overflow-hidden">
-        <div class="px-5 py-4 border-b klinika-border">
-            <h3 class="font-semibold text-base" style="color:var(--klinika-text)">Klinik dalam sistem</h3>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="text-[11px] font-semibold uppercase tracking-wider klinika-muted" style="border-bottom:1px solid var(--klinika-border);background:#F4F7F8">
-                        <th class="py-3.5 px-5">Klinik</th>
-                        <th class="py-3.5 px-5">Kode</th>
-                        <th class="py-3.5 px-5">Pengguna</th>
-                        <th class="py-3.5 px-5">Status</th>
-                        <th class="py-3.5 px-5">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y text-sm" style="border-color:var(--klinika-border)">
-                    @foreach ($clinics as $clinic)
-                    <tr class="hover:bg-[#F4F7F8]/60">
-                        <td class="py-4 px-5">
-                            <span class="font-semibold" style="color:var(--klinika-text)">{{ $clinic['name'] }}</span>
-                            <span class="klinika-muted"> • {{ $clinic['city'] }}</span>
-                        </td>
-                        <td class="py-4 px-5 text-sm klinika-muted">{{ $clinic['code'] }}</td>
-                        <td class="py-4 px-5 text-sm klinika-muted">{{ $clinic['users'] }} akun</td>
-                        <td class="py-4 px-5">
-                            <span class="text-xs font-medium px-2 py-0.5 rounded" style="background:#ecfdf5;color:#065f46">{{ $clinic['status'] }}</span>
-                        </td>
-                        <td class="py-4 px-5">
-                            <a href="{{ route('admin.users.index') }}" class="inline-flex items-center gap-1 text-sm font-medium" style="color:var(--klinika-primary)">
-                                Kelola
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                            </a>
-                        </td>
-                    </tr>
+        {{-- Card 1: Daftar Akun --}}
+        <div class="klinika-card p-5 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-semibold text-sm" style="color:var(--klinika-text)">Daftar akun</h3>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background:#E6F4F4;color:var(--klinika-primary)">
+                    {{ $daftarAkun['total_akun'] }} akun
+                </span>
+            </div>
+
+            <div class="space-y-2 text-xs">
+                <div class="flex justify-between py-1">
+                    <span class="klinika-muted">Total akun</span>
+                    <span class="font-medium" style="color:var(--klinika-text)">{{ $daftarAkun['total_akun'] }}</span>
+                </div>
+                <div class="flex justify-between py-1">
+                    <span class="klinika-muted">Akun aktif</span>
+                    <span class="font-medium" style="color:var(--klinika-text)">{{ $daftarAkun['akun_aktif'] }}</span>
+                </div>
+                <div class="flex justify-between py-1">
+                    <span class="klinika-muted">Permintaan akses</span>
+                    <span class="font-medium" style="color:var(--klinika-text)">{{ $daftarAkun['permintaan_akses'] }}</span>
+                </div>
+            </div>
+
+            <div class="pt-2 border-t klinika-border">
+                <p class="text-xs font-semibold mb-2" style="color:var(--klinika-text)">Pengguna terbaru</p>
+                <div class="space-y-1.5 text-xs">
+                    @foreach($daftarAkun['pengguna_terbaru'] as $user)
+                    <div class="flex justify-between py-0.5">
+                        <span style="color:var(--klinika-text)">{{ $user['name'] }}</span>
+                        <span class="klinika-muted">{{ $user['role'] }}</span>
+                    </div>
                     @endforeach
-                </tbody>
-            </table>
-        </div>
-        <div class="px-5 py-3 border-t klinika-border flex items-center justify-between">
-            <span class="text-xs klinika-muted">Menampilkan 1–{{ count($clinics) }} dari {{ count($clinics) }} data simulasi</span>
-            <div class="flex items-center gap-3 text-xs klinika-muted">
-                <span>Sebelumnya</span>
-                <span class="font-semibold" style="color:var(--klinika-text)">1</span>
-                <span>Berikutnya</span>
+                </div>
             </div>
         </div>
+
+        {{-- Card 2: Hak Akses --}}
+        <div class="klinika-card p-5 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-semibold text-sm" style="color:var(--klinika-text)">Hak akses</h3>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background:#E6F4F4;color:var(--klinika-primary)">
+                    {{ $hakAkses['role_aktif'] }} role
+                </span>
+            </div>
+
+            <div class="space-y-2 text-xs">
+                <div class="flex justify-between py-1">
+                    <span class="klinika-muted">Role aktif</span>
+                    <span class="font-medium" style="color:var(--klinika-text)">{{ $hakAkses['role_aktif'] }}</span>
+                </div>
+                <div class="flex justify-between py-1">
+                    <span class="klinika-muted">Akun terbanyak</span>
+                    <span class="font-medium" style="color:var(--klinika-text)">{{ $hakAkses['akun_terbanyak'] }}</span>
+                </div>
+                <div class="flex justify-between py-1">
+                    <span class="klinika-muted">Role tunggal</span>
+                    <span class="font-medium" style="color:var(--klinika-text)">{{ $hakAkses['role_tunggal'] }}</span>
+                </div>
+            </div>
+
+            <div class="pt-2 border-t klinika-border">
+                <p class="text-xs font-semibold mb-2" style="color:var(--klinika-text)">Role prioritas</p>
+                <div class="space-y-1.5 text-xs">
+                    @foreach($hakAkses['role_prioritas'] as $rp)
+                    <div class="flex justify-between py-0.5">
+                        <span style="color:var(--klinika-text)">{{ $rp['name'] }}</span>
+                        <span class="klinika-muted">{{ $rp['count'] }}</span>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        {{-- Card 3: Master Data --}}
+        <div class="klinika-card p-5 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-semibold text-sm" style="color:var(--klinika-text)">Master data</h3>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background:#E6F4F4;color:var(--klinika-primary)">
+                    {{ $masterData['poli'] }} poli
+                </span>
+            </div>
+
+            <div class="space-y-2 text-xs">
+                <div class="flex justify-between py-1">
+                    <span class="klinika-muted">Poli</span>
+                    <span class="font-medium" style="color:var(--klinika-text)">{{ $masterData['poli'] }}</span>
+                </div>
+                <div class="flex justify-between py-1">
+                    <span class="klinika-muted">Tenaga kesehatan</span>
+                    <span class="font-medium" style="color:var(--klinika-text)">{{ $masterData['tenaga_kesehatan'] }}</span>
+                </div>
+                <div class="flex justify-between py-1">
+                    <span class="klinika-muted">Jadwal hari ini</span>
+                    <span class="font-medium" style="color:var(--klinika-text)">{{ $masterData['jadwal_hari_ini'] }}</span>
+                </div>
+            </div>
+
+            <div class="pt-2 border-t klinika-border">
+                <p class="text-xs font-semibold mb-2" style="color:var(--klinika-text)">Master prioritas</p>
+                <div class="space-y-1.5 text-xs">
+                    @foreach($masterData['master_prioritas'] as $mp)
+                    <div class="flex justify-between py-0.5">
+                        <span style="color:var(--klinika-text)">{{ $mp['name'] }}</span>
+                        <span class="klinika-muted">{{ $mp['count'] }}</span>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        {{-- Card 4: Audit Aktivitas --}}
+        <div class="klinika-card p-5 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-semibold text-sm" style="color:var(--klinika-text)">Audit aktivitas</h3>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background:#E6F4F4;color:var(--klinika-primary)">
+                    {{ $auditAktivitas['aktivitas_hari_ini'] }} aktivitas
+                </span>
+            </div>
+
+            <div class="space-y-2 text-xs">
+                <div class="flex justify-between py-1">
+                    <span class="klinika-muted">Aktivitas hari ini</span>
+                    <span class="font-medium" style="color:var(--klinika-text)">{{ $auditAktivitas['aktivitas_hari_ini'] }}</span>
+                </div>
+                <div class="flex justify-between py-1">
+                    <span class="klinika-muted">Upaya login ditolak</span>
+                    <span class="font-medium" style="color:var(--klinika-text)">{{ $auditAktivitas['upaya_login_ditolak'] }}</span>
+                </div>
+                <div class="flex justify-between py-1">
+                    <span class="klinika-muted">Terakhir diperbarui</span>
+                    <span class="font-medium" style="color:var(--klinika-text)">{{ $auditAktivitas['terakhir_diperbarui'] }}</span>
+                </div>
+            </div>
+
+            <div class="pt-2 border-t klinika-border">
+                <p class="text-xs font-semibold mb-2" style="color:var(--klinika-text)">Aktivitas terbaru</p>
+                <div class="space-y-1.5 text-xs">
+                    @foreach($auditAktivitas['aktivitas_terbaru'] as $act)
+                    <div class="flex justify-between py-0.5">
+                        <span style="color:var(--klinika-text)">{{ $act['time'] }}</span>
+                        <span class="klinika-muted">{{ $act['desc'] }}</span>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    {{-- Bottom two panels --}}
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="klinika-card p-5">
-            <h3 class="font-semibold text-base mb-3" style="color:var(--klinika-text)">Audit aktivitas terakhir</h3>
-            <p class="text-sm klinika-muted italic">Belum ada data aktivitas tercatat.</p>
-        </div>
-        <div class="klinika-card p-5">
-            <h3 class="font-semibold text-base mb-3" style="color:var(--klinika-text)">Kebijakan akses</h3>
-            <p class="text-sm klinika-muted italic">Konfigurasi kebijakan akses belum tersedia.</p>
-        </div>
+    {{-- Subtle footer --}}
+    <div class="pt-2 text-xs klinika-muted flex flex-col sm:flex-row items-center gap-2">
+        <span>Data simulasi &bull; Bukan data pasien nyata</span>
+        <span class="hidden sm:inline">|</span>
+        <span>Klinika RME &bull; Akses tercatat</span>
     </div>
 
 </div>

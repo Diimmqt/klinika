@@ -21,7 +21,15 @@ class StoreUserRequest extends FormRequest
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'roles' => ['required', 'array', 'min:1'],
             'roles.*' => ['string', 'exists:roles,name'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'send_invitation' => ['nullable', 'boolean'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'password.confirmed' => 'Kata sandi awal dan konfirmasi tidak cocok.',
         ];
     }
 

@@ -29,7 +29,7 @@
         <div class="klinika-card p-5">
             <p class="text-xs klinika-muted font-medium">Kunjungan hari ini</p>
             <p class="text-3xl font-bold mt-1" style="color:var(--klinika-text)">{{ $stats['kunjungan_hari_ini'] }}</p>
-            <p class="text-xs klinika-muted mt-1">{{ $stats['aktif_kunjungan'] }} aktif &bull; {{ $stats['selesai_kunjungan'] }} selesai</p>
+            <p class="text-xs klinika-muted mt-1">{{ $stats['aktif_kunjungan'] }} aktif • {{ $stats['selesai_kunjungan'] }} selesai</p>
         </div>
         <div class="klinika-card p-5">
             <p class="text-xs klinika-muted font-medium">Dokter bertugas</p>
@@ -132,9 +132,9 @@
 
     {{-- Subtle footer --}}
     <div class="pt-2 text-xs klinika-muted flex flex-col sm:flex-row items-center gap-2">
-        <span>Data simulasi &bull; Bukan data pasien nyata</span>
+        <span>Data simulasi • Bukan data pasien nyata</span>
         <span class="hidden sm:inline">|</span>
-        <span>Klinika RME &bull; Akses tercatat</span>
+        <span>Klinika RME • Akses tercatat</span>
     </div>
 
 </div>

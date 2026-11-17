@@ -80,6 +80,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/master/poli', [AdminKlinikController::class, 'masterPoli'])->name('master.poli');
         Route::post('/master/poli', [AdminKlinikController::class, 'updateMasterPoli'])->name('master.poli.update');
         Route::get('users/{user}/deactivate', [UserController::class, 'deactivate'])->name('users.deactivate');
+        Route::post('users/{user}/activate', [UserController::class, 'activate'])->name('users.activate');
         Route::get('users/{user}/reset-password', [UserController::class, 'showResetPassword'])->name('users.reset-password');
         Route::post('users/{user}/reset-password', [UserController::class, 'sendResetPassword'])->name('users.send-reset-password');
         Route::resource('users', UserController::class);

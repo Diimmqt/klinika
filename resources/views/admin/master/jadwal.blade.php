@@ -214,9 +214,9 @@
 
     {{-- Subtle footer --}}
     <div class="pt-2 text-xs klinika-muted flex flex-col sm:flex-row items-center gap-2">
-        <span>Data simulasi &bull; Bukan data pasien nyata</span>
+        <span>Data simulasi • Bukan data pasien nyata</span>
         <span class="hidden sm:inline">|</span>
-        <span>Klinika RME &bull; Akses tercatat</span>
+        <span>Klinika RME • Akses tercatat</span>
     </div>
 
 </div>
