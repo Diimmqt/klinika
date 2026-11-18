@@ -101,6 +101,22 @@
                 <span>Master data</span>
             </a>
 
+            <a href="{{ route('polis.index') }}"
+               class="flex items-center gap-2 px-3 py-2.5 rounded-md font-medium text-sm transition-colors {{ request()->routeIs('polis.*') ? 'klinika-nav-active' : 'klinika-nav-idle' }}">
+                @if(request()->routeIs('polis.*'))
+                    <span class="text-sm font-bold leading-none">›</span>
+                @endif
+                <span>Data poli</span>
+            </a>
+
+            <a href="{{ route('practitioners.index') }}"
+               class="flex items-center gap-2 px-3 py-2.5 rounded-md font-medium text-sm transition-colors {{ request()->routeIs('practitioners.*') ? 'klinika-nav-active' : 'klinika-nav-idle' }}">
+                @if(request()->routeIs('practitioners.*'))
+                    <span class="text-sm font-bold leading-none">›</span>
+                @endif
+                <span>Tenaga kesehatan</span>
+            </a>
+
             <a href="#"
                class="flex items-center gap-2 px-3 py-2.5 rounded-md font-medium text-sm transition-colors klinika-nav-idle">
                 <span>Laporan</span>
@@ -285,6 +301,24 @@
                 <span>Rekap kas</span>
             </a>
             @endrole
+
+            @if(!auth()->check() && (request()->routeIs('polis.*') || request()->routeIs('practitioners.*')))
+            <a href="{{ route('polis.index') }}"
+               class="flex items-center gap-2 px-3 py-2.5 rounded-md font-medium text-sm transition-colors {{ request()->routeIs('polis.*') ? 'klinika-nav-active' : 'klinika-nav-idle' }}">
+                @if(request()->routeIs('polis.*'))
+                    <span class="text-sm font-bold leading-none">›</span>
+                @endif
+                <span>Data poli</span>
+            </a>
+
+            <a href="{{ route('practitioners.index') }}"
+               class="flex items-center gap-2 px-3 py-2.5 rounded-md font-medium text-sm transition-colors {{ request()->routeIs('practitioners.*') ? 'klinika-nav-active' : 'klinika-nav-idle' }}">
+                @if(request()->routeIs('practitioners.*'))
+                    <span class="text-sm font-bold leading-none">›</span>
+                @endif
+                <span>Tenaga kesehatan</span>
+            </a>
+            @endif
         </nav>
 
         <div class="p-4 border-t klinika-border space-y-3" style="background-color:#F4F7F8">

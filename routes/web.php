@@ -14,6 +14,8 @@ use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\NurseController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PendaftaranController;
+use App\Http\Controllers\PoliController;
+use App\Http\Controllers\PractitionerController;
 use App\Http\Controllers\QueueController;
 use App\Http\Controllers\VisitController;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +24,18 @@ use Illuminate\Support\Facades\Route;
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::match(['get', 'post'], '/logout', [LoginController::class, 'logout'])->name('logout');
+
+// ── Admin Klinik: Data Poli & Tenaga Kesehatan (langsung dapat diuji via URL) ─
+Route::resource('poli', PoliController::class)
+    ->names('polis')
+    ->parameters(['poli' => 'poli']);
+Route::patch('poli/{poli}/toggle-status', [PoliController::class, 'toggleStatus'])->name('polis.toggle-status');
+
+Route::resource('tenaga-kesehatan', PractitionerController::class)
+    ->names('practitioners')
+    ->parameters(['tenaga-kesehatan' => 'practitioner']);
+Route::patch('tenaga-kesehatan/{practitioner}/toggle-status', [PractitionerController::class, 'toggleStatus'])
+    ->name('practitioners.toggle-status');
 
 // ── Protected ────────────────────────────────────────────────
 Route::middleware('auth')->group(function () {

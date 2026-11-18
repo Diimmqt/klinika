@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Poli extends Model
@@ -24,6 +25,13 @@ class Poli extends Model
         return [
             'is_active' => 'boolean',
         ];
+    }
+
+    public function practitioners(): BelongsToMany
+    {
+        return $this->belongsToMany(Practitioner::class, 'schedules')
+            ->withPivot(['id', 'day_of_week', 'start_time', 'end_time', 'quota', 'is_active'])
+            ->withTimestamps();
     }
 
     public function visits(): HasMany
