@@ -34,6 +34,10 @@ class DashboardController extends Controller
             return redirect()->route('kasir.index');
         }
 
+        if ($user?->hasRole('apoteker')) {
+            return redirect()->route('apoteker.index');
+        }
+
         if ($user?->can('patient.view')) {
             return redirect()->route('patients.index');
         }

@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SuperAdminController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\ApotekerController;
 use App\Http\Controllers\CashierController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DoctorController;
@@ -70,6 +71,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/invoices/{invoice}/receipt', [CashierController::class, 'receipt'])->name('receipt');
         Route::get('/rekap-kas', [CashierController::class, 'rekapKas'])->name('rekap');
         Route::post('/rekap-kas/tutup-shift', [CashierController::class, 'tutupShift'])->name('tutup-shift');
+    });
+
+    Route::prefix('apoteker')->name('apoteker.')->group(function () {
+        Route::get('/', [ApotekerController::class, 'index'])->name('index');
+        Route::get('/resep', [ApotekerController::class, 'resepIndex'])->name('resep.index');
+        Route::get('/resep/{rx}', [ApotekerController::class, 'resepShow'])->name('resep.show');
+        Route::get('/obat', [ApotekerController::class, 'obatIndex'])->name('obat.index');
+        Route::post('/obat', [ApotekerController::class, 'obatStore'])->name('obat.store');
+        Route::get('/stok', [ApotekerController::class, 'stokIndex'])->name('stok.index');
+        Route::post('/stok', [ApotekerController::class, 'stokStore'])->name('stok.store');
     });
 
     Route::prefix('admin')->name('admin.')->middleware('role:super_admin|admin_klinik')->group(function () {
