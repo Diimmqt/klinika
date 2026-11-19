@@ -285,10 +285,40 @@
                 <span>Rekap kas</span>
             </a>
             @endrole
+            @role('apoteker')
+            <a href="{{ route('apoteker.index') }}"
+               class="flex items-center gap-2 px-3 py-2.5 rounded-md font-medium text-sm transition-colors {{ request()->routeIs('apoteker.index') ? 'klinika-nav-active' : 'klinika-nav-idle' }}">
+                @if(request()->routeIs('apoteker.index'))
+                    <span class="text-sm font-bold leading-none">›</span>
+                @endif
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ route('apoteker.resep.index') }}"
+               class="flex items-center gap-2 px-3 py-2.5 rounded-md font-medium text-sm transition-colors {{ request()->routeIs('apoteker.resep*') ? 'klinika-nav-active' : 'klinika-nav-idle' }}">
+                @if(request()->routeIs('apoteker.resep*'))
+                    <span class="text-sm font-bold leading-none">›</span>
+                @endif
+                <span>Daftar resep</span>
+            </a>
+            <a href="{{ route('apoteker.obat.index') }}"
+               class="flex items-center gap-2 px-3 py-2.5 rounded-md font-medium text-sm transition-colors {{ request()->routeIs('apoteker.obat*') ? 'klinika-nav-active' : 'klinika-nav-idle' }}">
+                @if(request()->routeIs('apoteker.obat*'))
+                    <span class="text-sm font-bold leading-none">›</span>
+                @endif
+                <span>Data obat</span>
+            </a>
+            <a href="{{ route('apoteker.stok.index') }}"
+               class="flex items-center gap-2 px-3 py-2.5 rounded-md font-medium text-sm transition-colors {{ request()->routeIs('apoteker.stok*') ? 'klinika-nav-active' : 'klinika-nav-idle' }}">
+                @if(request()->routeIs('apoteker.stok*'))
+                    <span class="text-sm font-bold leading-none">›</span>
+                @endif
+                <span>Stok obat</span>
+            </a>
+            @endrole
         </nav>
 
         <div class="p-4 border-t klinika-border space-y-3" style="background-color:#F4F7F8">
-            <div class="text-xs klinika-muted font-medium">AKSES: {{ auth()->user()?->hasRole('admin_klinik') ? 'Admin Klinik' : (auth()->user()?->hasRole('super_admin') ? 'Super Admin' : (auth()->user()?->getRoleNames()->first() ?? 'Pengguna')) }}</div>
+            <div class="text-xs klinika-muted font-medium">AKSES: {{ auth()->user()?->hasRole('admin_klinik') ? 'Admin Klinik' : (auth()->user()?->hasRole('super_admin') ? 'Super Admin' : (auth()->user()?->hasRole('apoteker') ? 'Apoteker' : (auth()->user()?->getRoleNames()->first() ?? 'Pengguna'))) }}</div>
             <a href="#" class="block text-xs klinika-muted hover:opacity-80">Bantuan & panduan</a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
