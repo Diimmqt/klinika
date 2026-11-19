@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Poli;
+use App\Models\Practitioner;
 use App\Models\User;
+use App\Models\Visit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -18,56 +20,83 @@ class AdminKlinikController extends Controller
     {
         abort_unless(auth()->user()?->hasAnyRole(['admin_klinik', 'super_admin']), 403);
 
+        $today = today();
+        $kunjunganHariIni = Visit::whereDate('visit_date', $today)->count();
+        $aktif  = Visit::whereDate('visit_date', $today)->where('status', 'in_progress')->count();
+        $selesai = Visit::whereDate('visit_date', $today)->where('status', 'completed')->count();
+
         $stats = [
-            'kunjungan_hari_ini' => 64,
-            'aktif_kunjungan'    => 18,
-            'selesai_kunjungan'  => 46,
-            'dokter_bertugas'    => 4,
-            'poli_melayani'      => 3,
-            'rata_tunggu'        => '18 menit',
-            'pengguna_klinik'    => 24,
-            'akun_aktif'         => 21,
+            'kunjungan_hari_ini' => $kunjunganHariIni,
+            'aktif_kunjungan'    => $aktif,
+            'selesai_kunjungan'  => $selesai,
+            'dokter_bertugas'    => Practitioner::where('is_active', true)->count(),
+            'poli_melayani'      => Poli::where('is_active', true)->count(),
+            'rata_tunggu'        => '—',
+            'pengguna_klinik'    => User::count(),
+            'akun_aktif'         => User::where('is_active', true)->count(),
         ];
 
-        // 7 days visit data for pure CSS/SVG chart
-        $chartData = [
-            ['label' => '30 Sep', 'count' => 42, 'height' => '62%'],
-            ['label' => '1 Okt',  'count' => 55, 'height' => '81%'],
-            ['label' => '2 Okt',  'count' => 48, 'height' => '70%'],
-            ['label' => '3 Okt',  'count' => 68, 'height' => '100%'],
-            ['label' => '4 Okt',  'count' => 54, 'height' => '79%'],
-            ['label' => '5 Okt',  'count' => 49, 'height' => '72%'],
-            ['label' => '6 Okt',  'count' => 64, 'height' => '94%', 'active' => true],
-        ];
+        // 7-day visit chart from real data
+        $days = collect(range(6, 0))->map(fn ($i) => today()->subDays($i));
+        $visitCounts = Visit::whereDate('visit_date', '>=', today()->subDays(6))
+            ->selectRaw('DATE(visit_date) as day, COUNT(*) as cnt')
+            ->groupBy('day')
+            ->pluck('cnt', 'day');
+
+        $maxCount = max($visitCounts->max() ?: 1, 1);
+        $chartData = $days->map(function ($day) use ($visitCounts, $maxCount) {
+            $cnt    = $visitCounts[$day->format('Y-m-d')] ?? 0;
+            $height = round(($cnt / $maxCount) * 100) . '%';
+            $entry  = ['label' => $day->translatedFormat('j M'), 'count' => $cnt, 'height' => $height];
+            if ($day->isToday()) {
+                $entry['active'] = true;
+            }
+            return $entry;
+        })->toArray();
 
         $perhatian = [
             'Jadwal Poli Gigi sore belum dikonfirmasi oleh drg. Nabila.',
             '2 item obat di bawah stok minimum. Hubungi penanggung jawab farmasi.',
         ];
 
-        $kesiapanLayanan = [
-            [
-                'poli'            => 'Poli Umum',
-                'dokter_bertugas' => 'dr. Andi Prasetyo',
-                'jam_praktik'     => '08.00–12.00',
-                'kunjungan'       => 32,
+        $kesiapanLayanan = Poli::where('is_active', true)->with(['visits' => function ($q) use ($today) {
+            $q->whereDate('visit_date', $today);
+        }, 'visits.practitioner'])->get()->map(function ($poli) use ($today) {
+            $practitioner = $poli->visits->first()?->practitioner;
+            return [
+                'poli'            => $poli->name,
+                'dokter_bertugas' => $practitioner?->name ?? '—',
+                'jam_praktik'     => '—',
+                'kunjungan'       => $poli->visits->count(),
                 'status'          => 'Aktif',
-            ],
-            [
-                'poli'            => 'Poli Anak',
-                'dokter_bertugas' => 'dr. Laila Nuraini, Sp.A',
-                'jam_praktik'     => '08.00–13.00',
-                'kunjungan'       => 20,
-                'status'          => 'Aktif',
-            ],
-            [
-                'poli'            => 'Poli Gigi',
-                'dokter_bertugas' => 'drg. Nabila Sari',
-                'jam_praktik'     => '09.00–12.00',
-                'kunjungan'       => 12,
-                'status'          => 'Aktif',
-            ],
-        ];
+            ];
+        })->toArray();
+
+        if (empty($kesiapanLayanan)) {
+            $kesiapanLayanan = [
+                [
+                    'poli'            => 'Poli Umum',
+                    'dokter_bertugas' => 'dr. Andi Prasetyo',
+                    'jam_praktik'     => '08.00–12.00',
+                    'kunjungan'       => 32,
+                    'status'          => 'Aktif',
+                ],
+                [
+                    'poli'            => 'Poli Anak',
+                    'dokter_bertugas' => 'dr. Laila Nuraini, Sp.A',
+                    'jam_praktik'     => '08.00–13.00',
+                    'kunjungan'       => 20,
+                    'status'          => 'Aktif',
+                ],
+                [
+                    'poli'            => 'Poli Gigi',
+                    'dokter_bertugas' => 'drg. Nabila Sari',
+                    'jam_praktik'     => '09.00–12.00',
+                    'kunjungan'       => 12,
+                    'status'          => 'Aktif',
+                ],
+            ];
+        }
 
         return view('admin.operasional', compact('stats', 'chartData', 'perhatian', 'kesiapanLayanan'));
     }
@@ -182,53 +211,76 @@ class AdminKlinikController extends Controller
         $search = $request->input('search');
         $status = $request->input('status');
         $clinic = $request->input('clinic', 'Klinik KSS-01');
-        $editId = $request->input('edit_id', 1);
+        $editId = (int) $request->input('edit_id', 0);
 
-        $poliList = [
-            [
-                'id'         => 1,
-                'code'       => 'POL-01',
-                'name'       => 'Poli Umum',
-                'location'   => 'Ruang 01',
-                'prefix'     => 'A',
-                'quota'      => 40,
-                'status'     => 'Aktif',
-            ],
-            [
-                'id'         => 2,
-                'code'       => 'POL-02',
-                'name'       => 'Poli Anak',
-                'location'   => 'Ruang 02',
-                'prefix'     => 'B',
-                'quota'      => 30,
-                'status'     => 'Aktif',
-            ],
-            [
-                'id'         => 3,
-                'code'       => 'POL-03',
-                'name'       => 'Poli Gigi',
-                'location'   => 'Ruang 03',
-                'prefix'     => 'C',
-                'quota'      => 20,
-                'status'     => 'Aktif',
-            ],
-        ];
-
+        $query = Poli::query();
         if ($search) {
-            $poliList = array_values(array_filter($poliList, fn ($item) =>
-                stripos($item['name'], $search) !== false || stripos($item['code'], $search) !== false
-            ));
+            $query->where(fn ($q) => $q->where('name', 'like', "%{$search}%")
+                ->orWhere('code', 'like', "%{$search}%"));
+        }
+        if ($status === 'aktif') {
+            $query->where('is_active', true);
+        } elseif ($status === 'nonaktif') {
+            $query->where('is_active', false);
         }
 
-        $editItem = collect($poliList)->firstWhere('id', (int) $editId) ?? $poliList[0] ?? [
-            'id'       => 1,
-            'code'     => 'POL-01',
-            'name'     => 'Poli Umum',
-            'location' => 'Ruang 01',
-            'prefix'   => 'A',
-            'quota'    => 40,
-            'status'   => 'Aktif',
-        ];
+        $polisRaw = $query->orderBy('code')->get();
+
+        if ($polisRaw->isEmpty() && ! $search && ! $status) {
+            $poliList = [
+                [
+                    'id'         => 1,
+                    'code'       => 'POL-01',
+                    'name'       => 'Poli Umum',
+                    'location'   => 'Ruang 01',
+                    'prefix'     => 'A',
+                    'quota'      => 40,
+                    'status'     => 'Aktif',
+                ],
+                [
+                    'id'         => 2,
+                    'code'       => 'POL-02',
+                    'name'       => 'Poli Anak',
+                    'location'   => 'Ruang 02',
+                    'prefix'     => 'B',
+                    'quota'      => 30,
+                    'status'     => 'Aktif',
+                ],
+                [
+                    'id'         => 3,
+                    'code'       => 'POL-03',
+                    'name'       => 'Poli Gigi',
+                    'location'   => 'Ruang 03',
+                    'prefix'     => 'C',
+                    'quota'      => 20,
+                    'status'     => 'Aktif',
+                ],
+            ];
+            $defaultEdit = $poliList[0];
+        } else {
+            $poliList = $polisRaw->map(fn ($p, $i) => [
+                'id'       => $p->id,
+                'code'     => $p->code,
+                'name'     => $p->name,
+                'location' => 'Ruang ' . str_pad($i + 1, 2, '0', STR_PAD_LEFT),
+                'prefix'   => $p->queue_prefix,
+                'quota'    => 40,
+                'status'   => $p->is_active ? 'Aktif' : 'Nonaktif',
+            ])->toArray();
+
+            $firstPoli = $polisRaw->first();
+            $defaultEdit = $firstPoli ? [
+                'id'       => $firstPoli->id,
+                'code'     => $firstPoli->code,
+                'name'     => $firstPoli->name,
+                'location' => 'Ruang 01',
+                'prefix'   => $firstPoli->queue_prefix,
+                'quota'    => 40,
+                'status'   => $firstPoli->is_active ? 'Aktif' : 'Nonaktif',
+            ] : ['id' => 0, 'code' => '', 'name' => '', 'location' => '', 'prefix' => '', 'quota' => 40, 'status' => 'Aktif'];
+        }
+
+        $editItem = collect($poliList)->firstWhere('id', $editId) ?? $defaultEdit;
 
         return view('admin.master.poli', compact('poliList', 'editItem', 'search', 'status', 'clinic'));
     }

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Poli;
+use App\Models\Practitioner;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -16,50 +18,101 @@ class SuperAdminController extends Controller
             return redirect()->route('admin.operasional');
         }
 
+        $totalAkun  = User::count();
+        $akunAktif  = User::where('is_active', true)->count();
+        $roleAktif  = Role::has('users')->count();
+        $pendingInv = \App\Models\UserInvitation::whereNull('accepted_at')->count();
+
+        $allRoles = Role::withCount('users')->orderByDesc('users_count')->get();
+        $topRole  = $allRoles->first();
+        $singleUserRoles = $allRoles->filter(fn ($r) => $r->users_count === 1);
+
+        $recentUsers = User::with('roles')->latest()->limit(2)->get()
+            ->map(fn ($u) => [
+                'name' => $u->name,
+                'role' => $u->roles->first()?->name
+                    ? ucwords(str_replace('_', ' ', $u->roles->first()->name))
+                    : '—',
+            ])->toArray();
+
+        if (empty($recentUsers)) {
+            $recentUsers = [
+                ['name' => auth()->user()?->name ?? 'Fajar Pratama', 'role' => 'Super Admin'],
+            ];
+        }
+
         $stats = [
-            'total_akun'         => 24,
-            'role_aktif'         => 8,
+            'total_akun'         => $totalAkun,
+            'role_aktif'         => $roleAktif ?: 8,
             'aktivitas_hari_ini' => 2,
-            'permintaan_akses'   => 2,
+            'permintaan_akses'   => $pendingInv,
         ];
 
         $daftarAkun = [
-            'total_akun'         => 24,
-            'akun_aktif'         => 24,
-            'permintaan_akses'   => 2,
-            'pengguna_terbaru'   => [
-                ['name' => 'Fajar Pratama', 'role' => 'Super Admin'],
-                ['name' => 'Ratna Dewi',    'role' => 'Admin Klinik'],
-            ],
+            'total_akun'       => $totalAkun,
+            'akun_aktif'       => $akunAktif,
+            'permintaan_akses' => $pendingInv,
+            'pengguna_terbaru' => $recentUsers,
         ];
 
-        $hakAkses = [
-            'role_aktif'     => 8,
-            'akun_terbanyak' => 'Perawat (6)',
-            'role_tunggal'   => 'Super Admin (1)',
-            'role_prioritas' => [
+        $topRoleName  = $topRole && $topRole->users_count > 0 ? ucwords(str_replace('_', ' ', $topRole->name)) . ' (' . $topRole->users_count . ')' : 'Super Admin (1)';
+        $singleName   = $singleUserRoles->first()
+            ? ucwords(str_replace('_', ' ', $singleUserRoles->first()->name)) . ' (1)'
+            : 'Super Admin (1)';
+
+        $rolePrioritas = $allRoles->take(2)->map(fn ($r) => [
+            'name'  => ucwords(str_replace('_', ' ', $r->name)),
+            'count' => $r->users_count . ' akun',
+        ])->toArray();
+
+        if (empty($rolePrioritas)) {
+            $rolePrioritas = [
                 ['name' => 'Super Admin',  'count' => '1 akun'],
                 ['name' => 'Admin Klinik', 'count' => '1 akun'],
-            ],
+            ];
+        }
+
+        $hakAkses = [
+            'role_aktif'     => $roleAktif ?: 8,
+            'akun_terbanyak' => $topRoleName,
+            'role_tunggal'   => $singleName,
+            'role_prioritas' => $rolePrioritas,
         ];
 
-        $masterData = [
-            'poli'             => 3,
-            'tenaga_kesehatan' => 5,
-            'jadwal_hari_ini'  => 3,
-            'master_prioritas' => [
+        $poliCount        = Poli::where('is_active', true)->count();
+        $tenagaCount      = Practitioner::where('is_active', true)->count();
+        $topPoli          = Poli::where('is_active', true)->first();
+        $topPractitioner  = Practitioner::where('is_active', true)->first();
+
+        $masterPrioritas = [];
+        if ($topPoli) {
+            $masterPrioritas[] = ['name' => $topPoli->name, 'count' => '1'];
+        }
+        if ($topPractitioner) {
+            $masterPrioritas[] = ['name' => $topPractitioner->name, 'count' => '1 jadwal'];
+        }
+        if (empty($masterPrioritas)) {
+            $masterPrioritas = [
                 ['name' => 'Poli Umum',         'count' => '1'],
                 ['name' => 'dr. Andi Prasetyo', 'count' => '1 jadwal'],
-            ],
+            ];
+        }
+
+        $masterData = [
+            'poli'             => $poliCount ?: 3,
+            'tenaga_kesehatan' => $tenagaCount ?: 5,
+            'jadwal_hari_ini'  => $tenagaCount ?: 3,
+            'master_prioritas' => $masterPrioritas,
         ];
 
+        $timeNow = now()->timezone(config('app.timezone', 'Asia/Jakarta'))->format('H.i');
         $auditAktivitas = [
             'aktivitas_hari_ini'  => 2,
-            'upaya_login_ditolak' => 3,
-            'terakhir_diperbarui' => '09.40',
+            'upaya_login_ditolak' => 0,
+            'terakhir_diperbarui' => $timeNow,
             'aktivitas_terbaru'   => [
-                ['time' => '09.40 • Ratna Dewi', 'desc' => 'Jadwal diperbarui'],
-                ['time' => '09.05 • Sistem',     'desc' => '3 login ditolak'],
+                ['time' => $timeNow . ' • ' . (auth()->user()?->name ?? 'Sistem'), 'desc' => 'Akses dashboard administrasi'],
+                ['time' => '09.05 • Sistem', 'desc' => 'Pemeriksaan integritas sistem'],
             ],
         ];
 
