@@ -19,7 +19,7 @@
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-            <h2 class="text-xl font-bold" style="color:var(--klinika-text)">Rekam medis elektronik</h2>
+            <h2 class="text-xl font-bold" style="color:var(--klinika-text)">Rekam Medis Elektronik (RME)</h2>
             <p class="text-sm klinika-muted mt-0.5">{{ $patient->name }}</p>
         </div>
         <a href="{{ url()->previous() }}"

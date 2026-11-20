@@ -32,14 +32,14 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {{-- Card 1: Menunggu Dokter --}}
         <div class="klinika-card p-4">
-            <p class="text-xs klinika-muted font-medium">Menunggu dokter</p>
+            <p class="text-xs klinika-muted font-medium">Menunggu Dokter</p>
             <p class="text-3xl font-bold mt-1" style="color:var(--klinika-text)">{{ $menungguCount > 0 || $selesaiCount > 0 || $sedangDiperiksaCount > 0 ? $menungguCount : 5 }}</p>
             <p class="text-xs klinika-muted mt-1">Siap untuk dipanggil &amp; diperiksa</p>
         </div>
 
         {{-- Card 2: Sedang Diperiksa --}}
         <div class="klinika-card p-4">
-            <p class="text-xs klinika-muted font-medium">Sedang diperiksa</p>
+            <p class="text-xs klinika-muted font-medium">Sedang Diperiksa</p>
             <p class="text-3xl font-bold mt-1" style="color:var(--klinika-text)">{{ $sedangDiperiksaCount > 0 ? $sedangDiperiksaCount : 1 }}</p>
             <p class="text-xs klinika-muted mt-1 truncate">
                 @if ($activePatient)
@@ -52,14 +52,14 @@
 
         {{-- Card 3: Selesai Hari Ini --}}
         <div class="klinika-card p-4">
-            <p class="text-xs klinika-muted font-medium">Selesai hari ini</p>
+            <p class="text-xs klinika-muted font-medium">Selesai Hari Ini</p>
             <p class="text-3xl font-bold mt-1" style="color:var(--klinika-text)">{{ $selesaiCount > 0 ? $selesaiCount : 12 }}</p>
             <p class="text-xs klinika-muted mt-1">Pemeriksaan medis tuntas</p>
         </div>
 
         {{-- Card 4: Total Antrean Poli --}}
         <div class="klinika-card p-4">
-            <p class="text-xs klinika-muted font-medium">Total antrean poli</p>
+            <p class="text-xs klinika-muted font-medium">Total Antrean Poli</p>
             <p class="text-3xl font-bold mt-1" style="color:var(--klinika-text)">{{ $totalCount > 0 ? $totalCount : 18 }}</p>
             <p class="text-xs klinika-muted mt-1">Registrasi per {{ \Carbon\Carbon::parse($date)->translatedFormat('d M Y') }}</p>
         </div>

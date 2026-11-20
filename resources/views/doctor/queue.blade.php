@@ -17,7 +17,7 @@
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-            <h2 class="text-xl font-bold" style="color:var(--klinika-text)">Antrean pasien dokter</h2>
+            <h2 class="text-xl font-bold" style="color:var(--klinika-text)">Antrean Pasien Dokter</h2>
             <p class="text-sm klinika-muted mt-0.5">Monitoring antrean konsultasi medis, pemanggilan pasien, dan riwayat pemeriksaan poli.</p>
         </div>
         <a href="{{ route('dokter.index') }}"

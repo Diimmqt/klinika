@@ -29,10 +29,21 @@ class LoginController extends Controller
         // Support login via email atau nama
         $field = filter_var($credentials['email'], FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
 
-        if (Auth::attempt([$field => $credentials['email'], 'password' => $credentials['password'], 'is_active' => true], $remember)) {
+        $attemptCredentials = [
+            $field     => $credentials['email'],
+            'password' => $credentials['password'],
+        ];
+
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_active')) {
+            $attemptCredentials['is_active'] = true;
+        }
+
+        if (Auth::attempt($attemptCredentials, $remember)) {
             $request->session()->regenerate();
 
-            Auth::user()->update(['last_login_at' => now()]);
+            if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'last_login_at')) {
+                Auth::user()->update(['last_login_at' => now()]);
+            }
 
             return redirect()->intended('/dashboard');
         }
