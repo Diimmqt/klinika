@@ -12,12 +12,19 @@ use App\Http\Controllers\ApotekerController;
 use App\Http\Controllers\CashierController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\LandingController;
 use App\Http\Controllers\NurseController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PendaftaranController;
 use App\Http\Controllers\QueueController;
 use App\Http\Controllers\VisitController;
 use Illuminate\Support\Facades\Route;
+
+// ── Public Landing Page ──────────────────────────────────────
+Route::get('/', [LandingController::class, 'index'])->name('landing');
+Route::post('/kontak', [LandingController::class, 'submitContact'])
+    ->middleware('throttle:5,1')
+    ->name('landing.contact');
 
 // ── Auth ─────────────────────────────────────────────────────
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -27,7 +34,6 @@ Route::match(['get', 'post'], '/logout', [LoginController::class, 'logout'])->na
 // ── Protected ────────────────────────────────────────────────
 Route::middleware('auth')->group(function () {
 
-    Route::get('/', fn () => redirect()->route('dashboard'));
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('patients', PatientController::class);
