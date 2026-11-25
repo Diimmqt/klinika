@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Admin\SettingController;
+use App\Mail\ContactInquiryMail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\View\View;
+use Throwable;
 
 class LandingController extends Controller
 {
@@ -16,10 +19,8 @@ class LandingController extends Controller
     {
         $hasLoginRoute = Route::has('login');
         $hasRegisterRoute = Route::has('register');
-        $systemSettings = Cache::get('system_settings', SettingController::DEFAULT_SETTINGS);
-
         $contactInfo = [
-            'email' => config('klinika.contact.email') ?: ($systemSettings['admin_email'] ?? 'admin@klinika.test'),
+            'email' => $this->resolveContactEmail(),
             'phone' => config('klinika.contact.phone', ''),
             'address' => config('klinika.contact.address', ''),
             'hours' => config('klinika.contact.hours', 'Senin – Jumat, 08.00 – 17.00 WIB'),
@@ -250,17 +251,52 @@ class LandingController extends Controller
             'message.min' => 'Pesan minimal terdiri dari 10 karakter.',
         ]);
 
-        Log::info('KLINIKA landing contact inquiry received', [
+        $inquiry = [
             'name' => $validated['name'],
             'clinic_name' => $validated['clinic_name'],
             'email' => $validated['email'],
             'phone' => $validated['phone'] ?? null,
             'topic' => $validated['topic'],
             'message' => $validated['message'],
+            'submitted_at' => now()->format('d M Y, H:i') . ' WIB',
+        ];
+
+        $recipientEmail = $this->resolveContactEmail();
+
+        Log::info('KLINIKA landing contact inquiry received', [
+            ...$inquiry,
+            'recipient' => $recipientEmail,
             'ip' => $request->ip(),
         ]);
 
+        try {
+            Mail::to($recipientEmail)->send(new ContactInquiryMail($inquiry));
+        } catch (Throwable $exception) {
+            Log::error('Failed to send KLINIKA landing contact inquiry email', [
+                'recipient' => $recipientEmail,
+                'sender_email' => $inquiry['email'],
+                'error' => $exception->getMessage(),
+            ]);
+
+            if (app()->isLocal()) {
+                return redirect(route('landing') . '#kontak')
+                    ->with('contact_warning', 'Pesan tersimpan di log, namun pengiriman email SMTP gagal: ' . $exception->getMessage());
+            }
+        }
+
         return redirect(route('landing') . '#kontak')
             ->with('contact_success', 'Terima kasih, ' . $validated['name'] . '. Pesan Anda telah tercatat dan akan ditindaklanjuti oleh tim administrasi KLINIKA.');
+    }
+
+    private function resolveContactEmail(): string
+    {
+        $configured = config('klinika.contact.email');
+        if (is_string($configured) && trim($configured) !== '') {
+            return trim($configured);
+        }
+
+        $systemSettings = Cache::get('system_settings', SettingController::DEFAULT_SETTINGS);
+
+        return $systemSettings['admin_email'] ?? 'admin@klinika.test';
     }
 }

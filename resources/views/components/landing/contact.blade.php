@@ -88,6 +88,16 @@
                         </div>
                     @endif
 
+                    @if (session('contact_warning'))
+                        <div role="alert" class="mb-6 rounded-xl border border-[#F5D9A8] bg-[#FFF5E4] p-4 flex items-start gap-3 text-[#96611C]">
+                            <img src="{{ asset('images/landing/info.svg') }}" alt="" width="18" height="18" class="w-[18px] h-[18px] mt-0.5 shrink-0">
+                            <div class="text-sm">
+                                <p class="font-semibold">Pengiriman email belum berhasil</p>
+                                <p class="mt-0.5 text-xs sm:text-sm" style="overflow-wrap:anywhere">{{ session('contact_warning') }}</p>
+                            </div>
+                        </div>
+                    @endif
+
                     @if ($errors->contact->any())
                         <div role="alert" class="mb-6 rounded-xl border border-[#FECDD3] bg-[#FFF1F2] p-4 text-[#9F1239] text-sm">
                             <p class="font-semibold">Mohon periksa kembali isian formulir Anda:</p>

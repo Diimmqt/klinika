@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Mail\ContactInquiryMail;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
@@ -35,6 +37,9 @@ class LandingPageTest extends TestCase
 
     public function test_contact_form_accepts_valid_submission(): void
     {
+        Mail::fake();
+        config(['klinika.contact.email' => 'penerima-test@example.test']);
+
         $response = $this->post(route('landing.contact'), [
             'name' => 'dr. Nadia Pratama',
             'clinic_name' => 'Klinik Pratama Sehat',
@@ -46,6 +51,29 @@ class LandingPageTest extends TestCase
 
         $response->assertRedirect(route('landing') . '#kontak');
         $response->assertSessionHas('contact_success');
+
+        Mail::assertSent(ContactInquiryMail::class, function (ContactInquiryMail $mail) {
+            return $mail->hasTo('penerima-test@example.test')
+                && $mail->hasReplyTo('nadia@klinik.example', 'dr. Nadia Pratama')
+                && $mail->inquiry['clinic_name'] === 'Klinik Pratama Sehat';
+        });
+    }
+
+    public function test_contact_form_ignores_honeypot_spam_without_sending_mail(): void
+    {
+        Mail::fake();
+
+        $response = $this->post(route('landing.contact'), [
+            'website' => 'https://spam.example',
+            'name' => 'Bot',
+            'clinic_name' => 'Spam',
+            'email' => 'bot@spam.example',
+            'topic' => 'demo',
+            'message' => 'Spam message content.',
+        ]);
+
+        $response->assertRedirect(route('landing') . '#kontak');
+        Mail::assertNothingSent();
     }
 
     public function test_contact_form_validates_required_fields(): void
