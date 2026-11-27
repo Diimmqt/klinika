@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Mail\AccountActivationMail;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
@@ -72,26 +75,34 @@ class UserController extends Controller
     public function store(StoreUserRequest $request): RedirectResponse
     {
         try {
-            $user = DB::transaction(function () use ($request) {
-                // Undangan: admin tidak set password. Placeholder acak agar kolom NOT NULL
-                // terisi; login diblokir lewat is_active=false sampai aktivasi.
+            $initialPassword = $request->filled('password')
+                ? $request->input('password')
+                : Str::password(10, letters: true, numbers: true, symbols: false);
+
+            $user = DB::transaction(function () use ($request, $initialPassword) {
                 $user = User::create([
                     'name' => $request->input('name'),
                     'email' => $request->input('email'),
-                    'password' => Str::password(64),
+                    'password' => $initialPassword,
                     'is_active' => false,
+                    'activated_at' => null,
+                    'password_changed_at' => null,
                 ]);
                 $user->syncRoles($request->input('roles', []));
 
                 return $user->load('roles');
             });
 
-            $sendInvitation = $request->boolean('send_invitation');
-            $expires = now()->addDay()->timezone(config('app.timezone'))->format('d M Y H:i');
+            $expiresAt = now()->addDay();
+            $activationUrl = URL::temporarySignedRoute('account.activate', $expiresAt, ['user' => $user->id]);
+            $roleLabel = $user->roleLabel();
 
-            $message = $sendInvitation
-                ? "Akun '{$user->name}' dibuat. Undangan aktivasi siap dikirim; pengguna belum dapat login."
-                : "Akun '{$user->name}' dibuat dengan status menunggu aktivasi (undangan belum dikirim).";
+            Mail::to($user->email)->send(
+                new AccountActivationMail($user, $roleLabel, $initialPassword, $activationUrl)
+            );
+
+            $expires = $expiresAt->timezone(config('app.timezone'))->format('d M Y H:i');
+            $message = "Akun '{$user->name}' berhasil dibuat. Email aktivasi dan kata sandi awal telah dikirim ke {$user->email}.";
 
             return redirect()
                 ->route('admin.users.create')
@@ -99,7 +110,7 @@ class UserController extends Controller
                 ->with('created_user', [
                     'name' => $user->name,
                     'email' => $user->email,
-                    'role' => $user->roles->pluck('name')->join(', ') ?: '—',
+                    'role' => $roleLabel,
                     'expires' => $expires,
                 ]);
         } catch (\Throwable $e) {
@@ -129,8 +140,15 @@ class UserController extends Controller
                 $data = $request->safe()->except(['roles', 'password', 'password_confirmation', 'audit_note']);
                 $data['is_active'] = $request->boolean('is_active');
 
+                if ($data['is_active'] && is_null($user->activated_at)) {
+                    $data['activated_at'] = now();
+                } elseif (! $data['is_active'] && $user->is_active && is_null($user->activated_at)) {
+                    $data['activated_at'] = $user->created_at;
+                }
+
                 if ($request->filled('password')) {
                     $data['password'] = $request->input('password');
+                    $data['password_changed_at'] = null;
                 }
 
                 // shortcut: jangan nonaktifkan satu-satunya super_admin aktif
@@ -162,6 +180,18 @@ class UserController extends Controller
         $isSelf = $user->id === auth()->id();
 
         return view('admin.users.deactivate', compact('user', 'isLastSuperAdmin', 'isSelf'));
+    }
+
+    public function activate(User $user): RedirectResponse
+    {
+        $user->update([
+            'is_active' => true,
+            'activated_at' => $user->activated_at ?? now(),
+        ]);
+
+        return redirect()
+            ->route('admin.users.index')
+            ->with('success', "User '{$user->name}' berhasil diaktifkan kembali.");
     }
 
     public function showResetPassword(User $user): View
@@ -197,7 +227,10 @@ class UserController extends Controller
             }
 
             $name = $user->name;
-            $user->update(['is_active' => false]);
+            $user->update([
+                'is_active' => false,
+                'activated_at' => $user->activated_at ?? $user->created_at,
+            ]);
 
             return redirect()
                 ->route('admin.users.index')

@@ -19,7 +19,7 @@
         <div>
             <h2 class="text-2xl font-bold tracking-tight" style="color:var(--klinika-text)">Akun pengguna</h2>
             <p class="text-sm klinika-muted mt-1">
-                Kelola akun pengguna Klinik Sehat Sentosa • KSS-01. Buat akun langsung, tetapkan peran awal, dan ubah status tanpa alur aktivasi email.
+                Kelola akun pengguna Klinik Sehat Sentosa • KSS-01. Tambah pengguna melalui undangan aktivasi email, tetapkan peran, dan atur status akses.
             </p>
         </div>
         <a href="{{ route('admin.users.create') }}"
@@ -183,6 +183,10 @@
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-semibold border"
                                           style="background:#ECFDF5;color:#047857;border-color:#A7F3D0">
                                         Aktif
+                                    </span>
+                                @elseif (is_null($u->activated_at))
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200">
+                                        Menunggu aktivasi
                                     </span>
                                 @else
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-semibold border"

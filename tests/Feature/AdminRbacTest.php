@@ -2,9 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Mail\AccountActivationMail;
 use App\Models\User;
 use Database\Seeders\RbacSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -32,6 +35,8 @@ class AdminRbacTest extends TestCase
 
     public function test_can_create_user_with_role_via_invitation(): void
     {
+        Mail::fake();
+
         $response = $this->post(route('admin.users.store'), [
             'name' => 'Petugas Baru',
             'email' => 'petugas@klinika.id',
@@ -43,9 +48,63 @@ class AdminRbacTest extends TestCase
         $this->assertNotNull($user);
         $this->assertTrue($user->hasRole('pendaftaran'));
         $this->assertFalse($user->is_active, 'Akun baru menunggu aktivasi, belum aktif');
+        $this->assertNull($user->activated_at);
+        $this->assertNull($user->password_changed_at);
         $response->assertRedirect(route('admin.users.create'));
         $response->assertSessionHas('success');
         $response->assertSessionHas('created_user');
+
+        $capturedMail = null;
+        Mail::assertSent(AccountActivationMail::class, function (AccountActivationMail $mail) use (&$capturedMail) {
+            $capturedMail = $mail;
+
+            return $mail->hasTo('petugas@klinika.id')
+                && $mail->user->name === 'Petugas Baru'
+                && $mail->roleLabel === 'Pendaftaran'
+                && strlen($mail->initialPassword) >= 8;
+        });
+
+        $this->assertNotNull($capturedMail);
+        $this->assertTrue(Hash::check($capturedMail->initialPassword, $user->password));
+        $renderedHtml = $capturedMail->render();
+        $this->assertStringContainsString('Petugas Baru', $renderedHtml);
+        $this->assertStringContainsString('Pendaftaran', $renderedHtml);
+        $this->assertStringContainsString($capturedMail->initialPassword, $renderedHtml);
+
+        // Logout dari sesi Super Admin untuk menguji login & aktivasi sebagai calon user
+        $this->post(route('logout'));
+
+        // Sebelum aktivasi: tidak bisa login walaupun password awal benar
+        $this->post(route('login'), [
+            'email' => 'petugas@klinika.id',
+            'password' => $capturedMail->initialPassword,
+        ])->assertSessionHasErrors(['email']);
+        $this->assertGuest();
+
+        // Tautan tanpa signature valid ditolak
+        $this->get(route('account.activate', ['user' => $user->id]))
+            ->assertRedirect(route('login'))
+            ->assertSessionHasErrors(['email']);
+        $this->assertFalse($user->fresh()->is_active);
+
+        // Klik tautan aktivasi dari email -> akun aktif & diarahkan ke halaman login
+        $this->get($capturedMail->activationUrl)
+            ->assertRedirect(route('login'))
+            ->assertSessionHas('success');
+
+        $user->refresh();
+        $this->assertTrue($user->is_active);
+        $this->assertNotNull($user->activated_at);
+        $this->assertNull($user->password_changed_at);
+
+        // Login pertama menggunakan email & password awal dari email
+        $this->post(route('login'), [
+            'email' => 'petugas@klinika.id',
+            'password' => $capturedMail->initialPassword,
+        ])->assertRedirect('/dashboard');
+
+        $this->assertAuthenticatedAs($user);
+        $this->assertNull($user->fresh()->password_changed_at);
     }
 
     public function test_can_render_edit_user_page_with_password_reset_option(): void

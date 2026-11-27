@@ -119,7 +119,17 @@
             margin-bottom: 2rem;
         }
 
-        /* error alert */
+        /* alerts */
+        .alert-success {
+            background: var(--info-bg);
+            color: var(--info-text);
+            border: 1.5px solid var(--info-border);
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            margin-bottom: 1.25rem;
+            line-height: 1.45;
+        }
         .alert-error {
             background: var(--error-bg);
             color: var(--error-text);
@@ -300,6 +310,12 @@
     <div class="form-wrap">
         <h1>Login</h1>
         <p class="form-hint">Gunakan akun yang diberikan administrator klinik.</p>
+
+        @if (session('success'))
+            <div class="alert-success" role="status">
+                {{ session('success') }}
+            </div>
+        @endif
 
         @if ($errors->any())
             <div class="alert-error" role="alert">

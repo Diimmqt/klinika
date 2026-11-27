@@ -117,8 +117,10 @@
         <div>
             @if ($user->is_active)
                 <span class="text-xs font-semibold px-2.5 py-1 rounded" style="background:#ecfdf5;color:#065f46">Aktif</span>
+            @elseif (is_null($user->activated_at))
+                <span class="text-xs font-semibold px-2.5 py-1 rounded text-amber-800 bg-amber-50 border border-amber-200">Menunggu aktivasi</span>
             @else
-                <span class="text-xs font-semibold px-2.5 py-1 rounded" style="background:#FFF3CD;color:#856404">Nonaktif</span>
+                <span class="text-xs font-semibold px-2.5 py-1 rounded" style="background:#F1F5F9;color:#64748B">Nonaktif</span>
             @endif
         </div>
     </div>

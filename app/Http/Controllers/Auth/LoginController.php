@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
@@ -35,6 +37,13 @@ class LoginController extends Controller
             Auth::user()->update(['last_login_at' => now()]);
 
             return redirect()->intended('/dashboard');
+        }
+
+        $pendingUser = User::where($field, $credentials['email'])->first();
+        if ($pendingUser && ! $pendingUser->is_active && is_null($pendingUser->activated_at) && Hash::check($credentials['password'], $pendingUser->password)) {
+            return back()->withErrors([
+                'email' => 'Akun Anda belum diaktifkan. Silakan klik tautan aktivasi yang dikirim ke email Anda terlebih dahulu.',
+            ])->onlyInput('email');
         }
 
         return back()->withErrors([
